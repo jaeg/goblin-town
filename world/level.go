@@ -135,11 +135,18 @@ func (level *Level) GetTileAt(x int, y int) (tile *TileSmall) {
 }
 
 //Get's the view frustum with the player in the center
-func (level *Level) GetView(aX int, aY int, width int, height int, blind bool) (data [][]*TileSmall) {
+func (level *Level) GetView(aX int, aY int, width int, height int, blind bool, centered bool) (data [][]*TileSmall) {
 	left := aX - width/2
 	right := aX + width/2
 	up := aY - height/2
 	down := aY + height/2
+
+	if centered == false {
+		left = aX
+		right = aX + width - 1
+		up = aY
+		down = aY + height
+	}
 
 	data = make([][]*TileSmall, width+1-width%2)
 
@@ -153,7 +160,6 @@ func (level *Level) GetView(aX int, aY int, width int, height int, blind bool) (
 					currentTile = nil
 				}
 			}
-
 			col = append(col, currentTile)
 		}
 		data[cX] = append(data[cX], col...)

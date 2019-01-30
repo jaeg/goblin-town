@@ -10,6 +10,13 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
+const Tile_Size_W = 32
+const Tile_Size_H = 32
+const Sprite_Size_H = 32
+const Sprite_Size_W = 32
+const Window_W = 800
+const Window_H = 600
+
 type entityView struct {
 	X, Y             int
 	SpriteX, SpriteY int32
@@ -29,7 +36,7 @@ func RenderSystemInit() {
 	}
 
 	window, err = sdl.CreateWindow("Tiles", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
-		800, 600, sdl.WINDOW_SHOWN)
+		Window_W, Window_H, sdl.WINDOW_SHOWN)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create window: %s\n", err)
 		return
@@ -88,19 +95,19 @@ func RenderSystem(planets map[string]*world.Planet) {
 		}
 	}
 
-	viewWidth := 25
-	viewHeight := 19
+	viewWidth := Window_W / Tile_Size_W
+	viewHeight := Window_H / Tile_Size_H
 
-	pX := Mouse.X/32 - viewWidth/2 + CameraX
-	pY := Mouse.Y/32 - viewHeight/2 + CameraY
+	pX := Mouse.X/Tile_Size_W + CameraX
+	pY := Mouse.Y/Tile_Size_H + CameraY
 
-	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false)
+	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false, false)
 
 	renderer.Clear()
 	for y := 0; y < len(view[0]); y++ {
 		for x := 0; x < len(view); x++ {
-			tX := int32(x * 32)
-			tY := int32(y * 32)
+			tX := int32(x * Tile_Size_W)
+			tY := int32(y * Tile_Size_H)
 			tile := view[x][y]
 			if tile == nil {
 				drawSprite(tX, tY, 64, 0, texture)
@@ -130,7 +137,7 @@ func RenderSystem(planets map[string]*world.Planet) {
 }
 
 func drawSprite(x int32, y int32, sx int32, sy int32, texture *sdl.Texture) {
-	src := sdl.Rect{X: sx, Y: sy, W: 32, H: 32}
-	dst := sdl.Rect{X: x, Y: y, W: 32, H: 32}
+	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
+	dst := sdl.Rect{X: x, Y: y, W: Tile_Size_W, H: Tile_Size_H}
 	renderer.Copy(texture, &src, &dst)
 }
