@@ -6,6 +6,6 @@ type Planet struct {
 
 func NewPlanet() (planet *Planet) {
 	planet = &Planet{Levels: []*Level{}}
-	planet.Levels = append(planet.Levels, NewOverworldSection(100, 100))
+	planet.Levels = append(planet.Levels, NewOverworldSection(1000, 1000))
 	return
 }

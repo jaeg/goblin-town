@@ -154,12 +154,6 @@ func (level *Level) GetView(aX int, aY int, width int, height int, blind bool) (
 				}
 			}
 
-			if currentTile != nil {
-				if los(aX, aY, x, y, level) == false {
-					currentTile = nil
-				}
-			}
-
 			col = append(col, currentTile)
 		}
 		data[cX] = append(data[cX], col...)

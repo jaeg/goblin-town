@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/veandco/go-sdl2/sdl"
@@ -42,7 +41,6 @@ func InputSystem() {
 			Mouse.State = int(t.State)
 		case *sdl.KeyboardEvent:
 			Keyboard.Keys[string(t.Keysym.Sym)] = int(t.State)
-			fmt.Println(Keyboard)
 		}
 	}
 }

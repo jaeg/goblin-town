@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -36,8 +35,8 @@ func main() {
 			entity.AddComponent(&component.AppearanceComponent{SpriteX: 32, SpriteY: 0})
 		}
 
-		//entity.AddComponent(&component.WanderAIComponent{})
-		entity.AddComponent(&component.InitiativeComponent{DefaultValue: 4, Ticks: 1})
+		entity.AddComponent(&component.WanderAIComponent{})
+		entity.AddComponent(&component.InitiativeComponent{DefaultValue: 32, Ticks: 1})
 		entity.AddComponent(&component.PositionComponent{X: x, Y: y, Level: 0})
 		entity.AddComponent(&component.DirectionComponent{Direction: 0})
 		entity.AddComponent(&component.SolidComponent{})
@@ -51,20 +50,18 @@ func main() {
 	system.InputSystemInit()
 	defer system.RenderSystemCleanup()
 
-	ticker := time.NewTicker(time.Second / 4)
+	ticker := time.NewTicker(time.Second / 32)
 
 	for _ = range ticker.C {
 		//start := time.Now()
 		system.InputSystem()
-		fmt.Println(system.Keyboard)
-		fmt.Println(system.Mouse)
 		system.InitiativeSystem(planets)
 		system.AISystem(planets)
 		system.RenderSystem(planets)
 		system.StatusConditionSystem(planets)
 		planets = system.CleanUpSystem(planets)
-		elapsed := time.Since(start)
-		log.Printf("Game loop took %s", elapsed)
+		//elapsed := time.Since(start)
+		//log.Printf("Game loop took %s", elapsed)
 	}
 
 }

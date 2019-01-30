@@ -19,6 +19,9 @@ var renderer *sdl.Renderer
 var texture *sdl.Texture
 var window *sdl.Window
 
+var CameraX = 0
+var CameraY = 0
+
 func RenderSystemInit() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
@@ -61,6 +64,19 @@ func RenderSystemCleanup() {
 
 // RenderSystem .
 func RenderSystem(planets map[string]*world.Planet) {
+	if Keyboard.Keys["a"] == 1 {
+		CameraX--
+	}
+	if Keyboard.Keys["d"] == 1 {
+		CameraX++
+	}
+	if Keyboard.Keys["w"] == 1 {
+		CameraY--
+	}
+	if Keyboard.Keys["s"] == 1 {
+		CameraY++
+	}
+
 	level := planets["hub"].Levels[0]
 	var seeableEntities []entityView
 	for _, entity := range level.Entities {
@@ -74,12 +90,11 @@ func RenderSystem(planets map[string]*world.Planet) {
 
 	viewWidth := 25
 	viewHeight := 19
-	cX := viewWidth / 2
-	cY := viewHeight / 2
-	pX := Mouse.X/32 - viewWidth/2 + cX
-	pY := Mouse.Y/32 - viewHeight/2 + cY
-	fmt.Println(pX, pY)
-	view := level.GetView(cX, cY, viewWidth, viewHeight, false)
+
+	pX := Mouse.X/32 - viewWidth/2 + CameraX
+	pY := Mouse.Y/32 - viewHeight/2 + CameraY
+
+	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false)
 
 	renderer.Clear()
 	for y := 0; y < len(view[0]); y++ {
@@ -92,7 +107,6 @@ func RenderSystem(planets map[string]*world.Planet) {
 			} else {
 				if pX == tile.X && pY == tile.Y {
 					drawSprite(tX, tY, 32, 0, texture) //Cursor?
-					fmt.Println("Hi")
 				} else {
 					drawTile := true
 					for _, entity := range seeableEntities {
