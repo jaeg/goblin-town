@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"time"
 
 	"goblin-town/component"
 	"goblin-town/entity"
@@ -12,15 +13,14 @@ import (
 )
 
 const (
-	alpha       = 6.
-	beta        = 5.
-	n           = 5
-	seed  int64 = 100
+	alpha = 6.
+	beta  = 5.
+	n     = 5
 )
 
 // Level .
 type Level struct {
-	data                  [][]TileSmall
+	data                  [][]Tile
 	Entities              []*entity.Entity
 	width, height         int
 	id                    int
@@ -28,40 +28,29 @@ type Level struct {
 	theme                 string
 }
 
-//Tile .
-type Tile struct {
-	SpriteX  int32
-	SpriteY  int32
-	Solid    bool
-	StairsTo int
-	StairsX  int
-	StairsY  int
-	Water    bool
-	Locked   bool
-}
-
 //Tile Types
 //1 - open
 //2 - solid
 //3 - stairs [level id, to x, to y]
 //4 - water
-type TileSmall struct {
-	Type    int
-	SpriteX int32
-	SpriteY int32
-	Data    []int
-	X       int
-	Y       int
+type Tile struct {
+	Type      int
+	SpriteX   int32
+	SpriteY   int32
+	Data      []int
+	X         int
+	Y         int
+	Elevation int
 }
 
 func newLevel(width int, height int) (level *Level) {
 	level = &Level{width: width, height: height, left: -1, right: -1, up: -1, down: -1}
 
-	data := make([][]TileSmall, width, height)
+	data := make([][]Tile, width, height)
 	for x := 0; x < width; x++ {
-		col := []TileSmall{}
+		col := []Tile{}
 		for y := 0; y < height; y++ {
-			col = append(col, TileSmall{Type: 1, X: x, Y: y, SpriteX: 16, SpriteY: 128})
+			col = append(col, Tile{Type: 1, X: x, Y: y, SpriteX: 16, SpriteY: 128})
 		}
 		data[x] = append(data[x], col...)
 	}
@@ -74,12 +63,12 @@ func NewOverworldSection(width int, height int) (level *Level) {
 	fmt.Println("Creating new random level")
 	level = newLevel(width, height)
 
-	p := perlin.NewPerlin(alpha, beta, n, seed)
+	p := perlin.NewPerlin(alpha, beta, n, time.Now().UnixNano())
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
 			tile := level.GetTileAt(x, y)
 			value := int(p.Noise2D(float64(x)/100, float64(y)/100) * 10)
-
+			tile.Elevation = value
 			if value == -1 {
 				tile.Type = 0
 				tile.SpriteX = 176
@@ -138,7 +127,7 @@ func NewOverworldSection(width int, height int) (level *Level) {
 	return
 }
 
-func (level *Level) GetTileAt(x int, y int) (tile *TileSmall) {
+func (level *Level) GetTileAt(x int, y int) (tile *Tile) {
 	if x < level.width && y < level.height && x >= 0 && y >= 0 {
 		tile = &level.data[x][y]
 	}
@@ -146,7 +135,7 @@ func (level *Level) GetTileAt(x int, y int) (tile *TileSmall) {
 }
 
 //Get's the view frustum with the player in the center
-func (level *Level) GetView(aX int, aY int, width int, height int, blind bool, centered bool) (data [][]*TileSmall) {
+func (level *Level) GetView(aX int, aY int, width int, height int, blind bool, centered bool) (data [][]*Tile) {
 	left := aX - width/2
 	right := aX + width/2
 	up := aY - height/2
@@ -159,11 +148,11 @@ func (level *Level) GetView(aX int, aY int, width int, height int, blind bool, c
 		down = aY + height
 	}
 
-	data = make([][]*TileSmall, width+1-width%2)
+	data = make([][]*Tile, width+1-width%2)
 
 	cX := 0
 	for x := left; x <= right; x++ {
-		col := []*TileSmall{}
+		col := []*Tile{}
 		for y := up; y <= down; y++ {
 			currentTile := level.GetTileAt(x, y)
 			if blind {

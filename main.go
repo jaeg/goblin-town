@@ -30,10 +30,10 @@ func main() {
 			y = rand.Intn(30)
 			message := []string{"Hello there!", "Like my hat?", "It's dangerous out here at night."}
 			entity.AddComponent(&component.InteractComponent{Message: message})
-			entity.AddComponent(&component.AppearanceComponent{SpriteX: 0, SpriteY: 112})
+			entity.AddComponent(&component.AppearanceComponent{SpriteX: 0, SpriteY: 112, R: 255, G: 255, B: 255})
 		} else {
 			entity.AddComponent(&component.ShopComponent{ItemsForSale: []string{"Sword", "Bow", "Shield", "Meat"}})
-			entity.AddComponent(&component.AppearanceComponent{SpriteX: 64, SpriteY: 0})
+			entity.AddComponent(&component.AppearanceComponent{SpriteX: 64, SpriteY: 0, R: 255, G: 0, B: 0})
 		}
 
 		entity.AddComponent(&component.WanderAIComponent{})

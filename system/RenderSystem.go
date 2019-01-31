@@ -22,6 +22,7 @@ type entityView struct {
 	X, Y             int
 	SpriteX, SpriteY int32
 	Dir              int
+	r, g, b          uint8
 }
 
 var renderer *sdl.Renderer
@@ -149,7 +150,7 @@ func RenderSystem(planets map[string]*world.Planet) {
 				dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 				dir = dc.Direction
 			}
-			ev := entityView{X: pc.X, Y: pc.Y, SpriteX: ac.SpriteX, SpriteY: ac.SpriteY, Dir: dir}
+			ev := entityView{X: pc.X, Y: pc.Y, SpriteX: ac.SpriteX, SpriteY: ac.SpriteY, Dir: dir, r: ac.R, g: ac.G, b: ac.B}
 			seeableEntities = append(seeableEntities, ev)
 		}
 	}
@@ -169,19 +170,19 @@ func RenderSystem(planets map[string]*world.Planet) {
 			tY := int32(y * Tile_Size_H)
 			tile := view[x][y]
 
-			drawSprite(tX, tY, tile.SpriteX, tile.SpriteY, worldTexture) //Tile itself
+			drawSprite(tX, tY, tile.SpriteX, tile.SpriteY, 255, 255, 255, worldTexture) //Tile itself
 
 			if tile == nil {
-				drawSprite(tX, tY, 0, 112, worldTexture) //Empty space
+				drawSprite(tX, tY, 0, 112, 255, 255, 255, worldTexture) //Empty space
 			} else {
 				for _, entity := range seeableEntities {
 					if entity.X == tile.X && entity.Y == tile.Y {
-						drawSprite(tX, tY, entity.SpriteX+(int32(entity.Dir)*Sprite_Size_W), entity.SpriteY, characterTexture) //Entity
+						drawSprite(tX, tY, entity.SpriteX+(int32(entity.Dir)*Sprite_Size_W), entity.SpriteY, entity.r, entity.g, entity.b, characterTexture) //Entity
 					}
 				}
 
 				if pX == tile.X && pY == tile.Y {
-					drawSprite(tX, tY, 128, 128, uiTexture) //Cursor?
+					drawSprite(tX, tY, 128, 128, 255, 255, 255, uiTexture) //Cursor?
 				}
 			}
 		}
@@ -191,7 +192,8 @@ func RenderSystem(planets map[string]*world.Planet) {
 	sdl.Delay(16)
 }
 
-func drawSprite(x int32, y int32, sx int32, sy int32, texture *sdl.Texture) {
+func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
+	texture.SetColorMod(r, g, b)
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
 	renderer.Copy(texture, &src, &dst)
