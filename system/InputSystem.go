@@ -13,7 +13,11 @@ type mouse struct {
 }
 
 type keyboard struct {
-	Keys map[string]int
+}
+
+func (k keyboard) GetKey(key string) uint8 {
+	sc := sdl.GetScancodeFromName(key)
+	return sdl.GetKeyboardState()[sc]
 }
 
 var Keyboard keyboard
@@ -21,7 +25,6 @@ var Keyboard keyboard
 var Mouse mouse
 
 func InputSystemInit() {
-	Keyboard.Keys = make(map[string]int, 0)
 }
 
 func InputSystem() {
@@ -39,8 +42,6 @@ func InputSystem() {
 			Mouse.Y = int(t.Y)
 			Mouse.Button = int(t.Button)
 			Mouse.State = int(t.State)
-		case *sdl.KeyboardEvent:
-			Keyboard.Keys[string(t.Keysym.Sym)] = int(t.State)
 		}
 	}
 }

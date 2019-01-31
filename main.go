@@ -15,6 +15,7 @@ var planets map[string]*world.Planet
 
 func main() {
 	start := time.Now()
+	rand.Seed(time.Now().UnixNano())
 	planets = make(map[string]*world.Planet)
 	planets["hub"] = world.NewPlanet()
 	elapsed := time.Since(start)
@@ -29,10 +30,10 @@ func main() {
 			y = rand.Intn(30)
 			message := []string{"Hello there!", "Like my hat?", "It's dangerous out here at night."}
 			entity.AddComponent(&component.InteractComponent{Message: message})
-			entity.AddComponent(&component.AppearanceComponent{SpriteX: 32, SpriteY: 0})
+			entity.AddComponent(&component.AppearanceComponent{SpriteX: 0, SpriteY: 112})
 		} else {
 			entity.AddComponent(&component.ShopComponent{ItemsForSale: []string{"Sword", "Bow", "Shield", "Meat"}})
-			entity.AddComponent(&component.AppearanceComponent{SpriteX: 32, SpriteY: 0})
+			entity.AddComponent(&component.AppearanceComponent{SpriteX: 64, SpriteY: 0})
 		}
 
 		entity.AddComponent(&component.WanderAIComponent{})

@@ -7,6 +7,15 @@ import (
 
 	"goblin-town/component"
 	"goblin-town/entity"
+
+	"github.com/aquilax/go-perlin"
+)
+
+const (
+	alpha       = 6.
+	beta        = 5.
+	n           = 5
+	seed  int64 = 100
 )
 
 // Level .
@@ -21,15 +30,14 @@ type Level struct {
 
 //Tile .
 type Tile struct {
-	TileIndex int
-	SpriteX   int32
-	SpriteY   int32
-	Solid     bool
-	StairsTo  int
-	StairsX   int
-	StairsY   int
-	Water     bool
-	Locked    bool
+	SpriteX  int32
+	SpriteY  int32
+	Solid    bool
+	StairsTo int
+	StairsX  int
+	StairsY  int
+	Water    bool
+	Locked   bool
 }
 
 //Tile Types
@@ -38,13 +46,12 @@ type Tile struct {
 //3 - stairs [level id, to x, to y]
 //4 - water
 type TileSmall struct {
-	TileIndex int
-	Type      int
-	SpriteX   int32
-	SpriteY   int32
-	Data      []int
-	X         int
-	Y         int
+	Type    int
+	SpriteX int32
+	SpriteY int32
+	Data    []int
+	X       int
+	Y       int
 }
 
 func newLevel(width int, height int) (level *Level) {
@@ -54,7 +61,7 @@ func newLevel(width int, height int) (level *Level) {
 	for x := 0; x < width; x++ {
 		col := []TileSmall{}
 		for y := 0; y < height; y++ {
-			col = append(col, TileSmall{TileIndex: 112, Type: 1, X: x, Y: y})
+			col = append(col, TileSmall{Type: 1, X: x, Y: y, SpriteX: 16, SpriteY: 128})
 		}
 		data[x] = append(data[x], col...)
 	}
@@ -66,64 +73,68 @@ func newLevel(width int, height int) (level *Level) {
 func NewOverworldSection(width int, height int) (level *Level) {
 	fmt.Println("Creating new random level")
 	level = newLevel(width, height)
+
+	p := perlin.NewPerlin(alpha, beta, n, seed)
 	for x := 0; x < width; x++ {
 		for y := 0; y < height; y++ {
-			if rand.Intn(1000) == 0 {
-				level.GetTileAt(x, y).TileIndex = 13
-				level.GetTileAt(x, y).Type = 3
-				level.GetTileAt(x, y).Data = []int{-1, 0, 0}
-			} else if rand.Intn(5) == 0 {
-				level.GetTileAt(x, y).TileIndex = 121
-			} else {
-				level.GetTileAt(x, y).TileIndex = 122
+			tile := level.GetTileAt(x, y)
+			value := int(p.Noise2D(float64(x)/100, float64(y)/100) * 10)
+
+			if value == -1 {
+				tile.Type = 0
+				tile.SpriteX = 176
+				tile.SpriteY = 80
+			}
+
+			//grass
+			if value > -1 {
+				tile.Type = 0
+				tile.SpriteX = 128
+				tile.SpriteY = 80
+			}
+
+			if value >= 2 {
+				tile.Type = 0
+				tile.SpriteX = 0
+				tile.SpriteY = 80
 			}
 		}
 	}
-
-	//Generate Flower Medows
-	for i := 0; i < 50; i++ {
-		x := getRandom(1, width)
-		y := getRandom(1, height)
-
-		level.createCluster(x, y, 10, 123, 0, false, false)
-	}
-
-	//Generate Water
-	for i := 0; i < 100; i++ {
-		x := getRandom(1, width)
-		y := getRandom(1, height)
-
-		level.createCluster(x, y, 100, 181, 0, false, true)
-	}
-
-	return
-}
-
-func NewDungeon(width int, height int, stairsUpTo int, fromX int, fromY int) (level *Level, pX int, pY int) {
-	fmt.Println("Creating dungeon")
-	level = newLevel(width, height)
-	for x := 0; x < width; x++ {
-		for y := 0; y < height; y++ {
-			if rand.Intn(1000) == 0 {
-				level.GetTileAt(x, y).TileIndex = 12
-				level.GetTileAt(x, y).Type = 3
-				level.GetTileAt(x, y).Data = []int{-1, 0, 0}
-			} else if rand.Intn(5) == 0 {
-				level.GetTileAt(x, y).TileIndex = 8
-				level.GetTileAt(x, y).Type = 1
-			} else {
-				level.GetTileAt(x, y).TileIndex = 7
-				level.GetTileAt(x, y).Type = 1
+	/*
+		for x := 0; x < width; x++ {
+			for y := 0; y < height; y++ {
+				if rand.Intn(5) == 0 {
+					level.GetTileAt(x, y).SpriteX = 144
+				} else if rand.Intn(50) == 0 {
+					level.GetTileAt(x, y).SpriteX = 192
+				}
 			}
 		}
-	}
 
-	pX = getRandom(0, width)
-	pY = getRandom(0, height)
-	level.GetTileAt(pX, pY).Data = []int{stairsUpTo, fromX, fromY}
-	level.GetTileAt(pX, pY).TileIndex = 13
-	level.GetTileAt(pX, pY).Type = 3
+		//Generate flower formations
+		for i := 0; i < 50; i++ {
+			x := getRandom(1, width)
+			y := getRandom(1, height)
 
+			level.createCluster(x, y, 10, 176, 80, false, false)
+		}
+
+		//Generate Water
+		for i := 0; i < 1000; i++ {
+			x := getRandom(1, width)
+			y := getRandom(1, height)
+
+			level.createCluster(x, y, getRandom(20, 300), 16, 128, false, true)
+		}
+
+		//Generate Mountains
+		for i := 0; i < 3; i++ {
+			x := getRandom(1, width)
+			y := getRandom(1, height)
+
+			level.createCluster(x, y, 2000, 0, 80, true, false)
+		}
+	*/
 	return
 }
 
@@ -273,8 +284,8 @@ func (level *Level) RemoveEntity(entity *entity.Entity) {
 	}
 }
 
-func (level *Level) createCluster(x int, y int, size int, tileIndex int, spriteIndex int, solid bool, water bool) {
-	for i := 0; i < 200; i++ {
+func (level *Level) createCluster(x int, y int, size int, spriteX int32, spriteY int32, solid bool, water bool) {
+	for i := 0; i < size; i++ {
 		n := getRandom(1, 6)
 		e := getRandom(1, 6)
 		s := getRandom(1, 6)
@@ -298,8 +309,8 @@ func (level *Level) createCluster(x int, y int, size int, tileIndex int, spriteI
 
 		if level.GetTileAt(x, y) != nil {
 			tile := level.GetTileAt(x, y)
-			tile.TileIndex = tileIndex
-
+			tile.SpriteX = spriteX
+			tile.SpriteY = spriteY
 			if solid {
 				tile.Type = 2
 			} else if water {
@@ -383,141 +394,6 @@ func los(pX int, pY int, tX int, tY int, level *Level) bool {
 
 }
 
-// Ported from here: https://github.com/tome2/tome2/blob/master/src/generate.cc
-func (level *Level) buildRecursiveRoom(x1 int, y1 int, x2 int, y2 int, power int) {
-	xSize := x2 - x1
-	ySize := y2 - y1
-
-	if xSize < 0 || ySize < 0 {
-		return
-	}
-
-	var choice int
-	if power < 3 && xSize > 12 && ySize > 12 {
-		choice = 1
-	} else {
-		if power < 10 {
-			if getRandom(0, 10) > 2 && xSize < 8 && ySize < 8 {
-				choice = 4
-			} else {
-				choice = getRandom(0, 2) + 1
-			}
-		} else {
-			choice = getRandom(0, 3) + 1
-		}
-	}
-
-	if choice == 1 {
-		//Outer walls
-		for x := x1; x <= x2; x++ {
-			level.GetTileAt(x, y1).TileIndex = 0
-			level.GetTileAt(x, y2).TileIndex = 0
-		}
-
-		for y := y1 + 1; y < y2; y++ {
-			level.GetTileAt(x1, y).TileIndex = 6
-			level.GetTileAt(x2, y).TileIndex = 6
-		}
-
-		if getRandom(0, 2) == 0 {
-			y := getRandom(0, ySize) + y1
-			level.GetTileAt(x1, y).TileIndex = 121
-			level.GetTileAt(x2, y).TileIndex = 121
-		} else {
-			x := getRandom(0, xSize) + x1
-			level.GetTileAt(x, y1).TileIndex = 121
-			level.GetTileAt(x, y2).TileIndex = 121
-		}
-
-		//Size of keep
-		t1 := getRandom(0, ySize/3) + y1
-		t2 := y2 - getRandom(0, ySize/3)
-		t3 := getRandom(0, xSize/3) + x1
-		t4 := x2 - getRandom(0, xSize/3)
-
-		//Above and below
-		level.buildRecursiveRoom(x1+1, y1+1, x2-1, t1, power+1)
-		level.buildRecursiveRoom(x1+1, t2, x2-1, y2, power+1)
-
-		//Left and right
-		level.buildRecursiveRoom(x1+1, t1+1, t3, t2-1, power+3)
-		level.buildRecursiveRoom(t4, t1+1, x2-1, t2-1, power+3)
-
-		x1 = t3
-		x2 = t4
-		y1 = t1
-		y2 = t2
-		xSize = x2 - x1
-		ySize = y2 - y1
-		power += 2
-	}
-
-	if choice == 4 || choice == 1 {
-		if xSize < 3 || ySize < 3 {
-			for y := y1; y < y2; y++ {
-				for x := x1; x < x2; x++ {
-					level.GetTileAt(x, y).TileIndex = 165
-				}
-			}
-
-			return
-		}
-
-		//make outside walls
-		for x := x1 + 1; x <= x2-1; x++ {
-			level.GetTileAt(x, y1+1).TileIndex = 165
-			level.GetTileAt(x, y2-1).TileIndex = 165
-		}
-
-		for y := y1 + 1; y < y2-1; y++ {
-			level.GetTileAt(x1+1, y).TileIndex = 165
-			level.GetTileAt(x2-1, y).TileIndex = 165
-		}
-
-		//Make door
-		y := getRandom(0, ySize-3) + y1 + 2
-		if getRandom(0, 2) == 0 {
-			level.GetTileAt(x1+1, y).TileIndex = 123
-		} else {
-			level.GetTileAt(x2-1, y).TileIndex = 123
-		}
-
-		level.buildRecursiveRoom(x1+2, y1+2, x2-2, y2-2, power+3)
-	}
-
-	if choice == 2 {
-		if xSize < 3 {
-			for y := y1; y < y2; y++ {
-				for x := x1; x < x2; x++ {
-					level.GetTileAt(x, y).TileIndex = 165
-				}
-			}
-
-			return
-		}
-
-		t1 := getRandom(0, xSize-2) + x1 + 1
-		level.buildRecursiveRoom(x1, y1, t1, y2, power-2)
-		level.buildRecursiveRoom(t1+1, y1, x2, y2, power-2)
-	}
-
-	if choice == 3 {
-		if ySize < 3 {
-			for y := y1; y < y2; y++ {
-				for x := x1; x < x2; x++ {
-					level.GetTileAt(x, y).TileIndex = 165
-				}
-			}
-
-			return
-		}
-
-		t1 := getRandom(0, ySize-2) + y1 + 1
-		level.buildRecursiveRoom(x1, y1, x2, t1, power-2)
-		level.buildRecursiveRoom(x1, t1+1, x2, y2, power-2)
-	}
-}
-
 func distance(x1 int, y1 int, x2 int, y2 int) int {
 	var dy int
 	if y1 > y2 {
@@ -541,79 +417,4 @@ func distance(x1 int, y1 int, x2 int, y2 int) int {
 	}
 
 	return d
-}
-
-type coords struct {
-	x, y int
-}
-
-func (level *Level) buildStoreCircle(qx int, qy int, xx int, yy int) coords {
-	rad := 2 + getRandom(0, 2)
-
-	y0 := qy + yy*9 + 6
-	x0 := qx + xx*14 + 12
-
-	//Building
-	for y := y0 - rad; y <= y0+rad; y++ {
-		for x := x0 - rad; x <= x0+rad; x++ {
-			if distance(x0, y0, x, y) > rad {
-				continue
-			}
-			level.GetTileAt(x, y).TileIndex = 165
-		}
-	}
-
-	//Door location
-	tmp := getRandom(0, 4)
-
-	if ((tmp == 0) && (yy == 1)) ||
-		((tmp == 1) && (yy == 0)) ||
-		((tmp == 2) && (xx == 3)) ||
-		((tmp == 3) && (xx == 0)) {
-		/* Pick a new direction */
-		tmp = getRandom(0, 4)
-	}
-
-	coords := coords{}
-	switch tmp {
-	case 0:
-		for y := y0; y <= y0+rad; y++ {
-			level.GetTileAt(x0, y).TileIndex = 123
-		}
-		coords.x = x0
-		coords.y = y0 + rad
-
-	case 1:
-		for y := y0 - rad; y <= y0; y++ {
-			level.GetTileAt(x0, y).TileIndex = 123
-		}
-		coords.x = x0
-		coords.y = y0 - rad
-
-	case 2:
-		for x := x0; x <= x0+rad; x++ {
-			level.GetTileAt(x, y0).TileIndex = 123
-		}
-		coords.x = x0 + rad
-		coords.y = y0
-
-	case 3:
-		for x := x0 - rad; x <= x0; x++ {
-			level.GetTileAt(x, y0).TileIndex = 123
-		}
-		coords.x = x0 - rad
-		coords.y = y0
-	}
-
-	return coords
-}
-
-func (level *Level) townGenCircle(qx int, qy int, width int, height int) {
-	var buildings []coords
-	//buildings
-	for y := 0; y < 2; y++ {
-		for x := 0; x < 4; x++ {
-			buildings = append(buildings, level.buildStoreCircle(qx, qy, x, y))
-		}
-	}
 }
