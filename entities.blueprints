@@ -1,12 +1,16 @@
 goblin
 AppearanceComponent:0,112,255,255,255
 SolidComponent:
-InventoryComponent:wood,meat
-InteractComponent:Hello there!,Like my hat?,It's dangerous out here at night.
-WanderAIComponent:
+GoblinAIComponent:
 InitiativeComponent:30,1
 
 rat
 AppearanceComponent:10,10
 SolidComponent:
 WanderAIComponent:
+
+food
+AppearanceComponent:0,272,255,255,255
+SolidComponent:
+FoodComponent:10
+InitiativeComponent:30,1

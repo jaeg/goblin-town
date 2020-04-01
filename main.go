@@ -21,12 +21,23 @@ func main() {
 	elapsed := time.Since(start)
 	log.Printf("Generating the world took %s", elapsed)
 
+	//Random population of goblins
 	for i := 0; i < 10; i++ {
-		x := rand.Intn(30)
-		y := rand.Intn(30)
+		x := rand.Intn(10)
+		y := rand.Intn(10)
 		goblin, err := entity.Create("goblin", x, y)
 		if err == nil {
 			planets["hub"].Levels[0].AddEntity(goblin)
+		}
+	}
+
+	//Random food
+	for i := 0; i < 20; i++ {
+		x := rand.Intn(20)
+		y := rand.Intn(20)
+		food, err := entity.Create("food", x, y)
+		if err == nil {
+			planets["hub"].Levels[0].AddEntity(food)
 		}
 	}
 

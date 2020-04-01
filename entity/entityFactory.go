@@ -84,6 +84,11 @@ func Create(name string, x int, y int) (*Entity, error) {
 				entity.AddComponent(interact)
 			case "WanderAIComponent":
 				entity.AddComponent(&component.WanderAIComponent{})
+			case "GoblinAIComponent":
+				entity.AddComponent(&component.GoblinAIComponent{Energy: 50, SightRange: 5, HungerThreshold: 30, State: "wander", SocialThreshold: 4})
+			case "FoodComponent":
+				amount, _ := strconv.Atoi(params[0])
+				entity.AddComponent(&component.FoodComponent{Amount: amount})
 			}
 		}
 		return &entity, nil
