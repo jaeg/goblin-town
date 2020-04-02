@@ -35,7 +35,7 @@ func main() {
 	for i := 0; i < 20; i++ {
 		x := rand.Intn(20)
 		y := rand.Intn(20)
-		food, err := entity.Create("food", x, y)
+		food, err := entity.Create("rat", x, y)
 		if err == nil {
 			planets["hub"].Levels[0].AddEntity(food)
 		}

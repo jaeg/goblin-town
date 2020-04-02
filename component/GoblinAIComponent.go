@@ -6,6 +6,7 @@ type GoblinAIComponent struct {
 	SightRange      int
 	HungerThreshold int
 	SocialThreshold int
+	MateThreshold   int
 	State           string
 	TargetX         int
 	TargetY         int
