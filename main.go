@@ -41,20 +41,37 @@ func main() {
 		}
 	}
 
-	system.RenderSystemInit()
-	system.InputSystemInit()
-	defer system.RenderSystemCleanup()
+	systems := make([]system.System, 0)
 
+	//Initiative System
+	systems = append(systems, system.InitiativeSystem{})
+
+	//AI System
+	systems = append(systems, system.AISystem{})
+
+	//StatusCondition System
+	systems = append(systems, system.StatusConditionSystem{})
+
+	//Render System
+	rs := system.RenderSystem{}
+	rs.Init()
+	defer rs.Cleanup()
+	systems = append(systems, rs)
+
+	//StatusCondition System
+	systems = append(systems, system.CleanUpSystem{})
+
+	// Input system
+	system.InputSystemInit()
 	ticker := time.NewTicker(time.Second / 32)
 
 	for _ = range ticker.C {
 		//start := time.Now()
 		system.InputSystem()
-		system.InitiativeSystem(planets)
-		system.AISystem(planets)
-		system.RenderSystem(planets)
-		system.StatusConditionSystem(planets)
-		planets = system.CleanUpSystem(planets)
+		for s := range systems {
+			planets = systems[s].Update(planets)
+		}
+
 		//elapsed := time.Since(start)
 		//log.Printf("Game loop took %s", elapsed)
 	}

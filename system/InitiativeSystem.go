@@ -5,8 +5,11 @@ import (
 	"goblin-town/world"
 )
 
+type InitiativeSystem struct {
+}
+
 // InitiativeSystem .
-func InitiativeSystem(planets map[string]*world.Planet) {
+func (s InitiativeSystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
 	for _, planet := range planets {
 		for _, level := range planet.Levels {
 			for _, entity := range level.Entities {
@@ -29,4 +32,5 @@ func InitiativeSystem(planets map[string]*world.Planet) {
 			}
 		}
 	}
+	return planets
 }

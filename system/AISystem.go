@@ -13,8 +13,11 @@ func getRandom(low int, high int) int {
 	return (rand.Intn((high - low))) + low
 }
 
+type AISystem struct {
+}
+
 // PlayerSystem .
-func AISystem(planets map[string]*world.Planet) {
+func (s AISystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
 	for _, planet := range planets {
 		for _, level := range planet.Levels {
 			//fmt.Println(t, len(level.Entities))
@@ -367,4 +370,5 @@ func AISystem(planets map[string]*world.Planet) {
 			}
 		}
 	}
+	return planets
 }

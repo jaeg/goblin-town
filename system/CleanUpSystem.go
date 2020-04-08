@@ -5,8 +5,11 @@ import (
 	"goblin-town/world"
 )
 
+type CleanUpSystem struct {
+}
+
 // CleanUpSystem .
-func CleanUpSystem(planets map[string]*world.Planet) map[string]*world.Planet {
+func (s CleanUpSystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
 	for _, planet := range planets {
 		for _, level := range planet.Levels {
 			for i, entity := range level.Entities {

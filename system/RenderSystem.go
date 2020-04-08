@@ -25,6 +25,9 @@ type entityView struct {
 	r, g, b          uint8
 }
 
+type RenderSystem struct {
+}
+
 var renderer *sdl.Renderer
 var characterTexture *sdl.Texture
 var worldTexture *sdl.Texture
@@ -36,7 +39,7 @@ var CameraY = 0
 
 var Zoom = 1
 
-func RenderSystemInit() {
+func (s RenderSystem) Init() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		panic(err)
@@ -96,7 +99,7 @@ func RenderSystemInit() {
 	}
 }
 
-func RenderSystemCleanup() {
+func (s RenderSystem) Cleanup() {
 	sdl.Quit()
 	window.Destroy()
 	renderer.Destroy()
@@ -107,7 +110,7 @@ func RenderSystemCleanup() {
 }
 
 // RenderSystem .
-func RenderSystem(planets map[string]*world.Planet) {
+func (s RenderSystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
 	if Keyboard.GetKey("a") == 1 && CameraX > 0 {
 		CameraX--
 	}
@@ -190,6 +193,7 @@ func RenderSystem(planets map[string]*world.Planet) {
 
 	renderer.Present()
 	sdl.Delay(16)
+	return planets
 }
 
 func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {

@@ -5,10 +5,13 @@ import (
 	"goblin-town/world"
 )
 
+type StatusConditionSystem struct {
+}
+
 var statusConditions = []string{"Poisoned"}
 
 // StatusConditionSystem .
-func StatusConditionSystem(planets map[string]*world.Planet) {
+func (s StatusConditionSystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
 	for _, planet := range planets {
 		for _, level := range planet.Levels {
 			for _, entity := range level.Entities {
@@ -24,4 +27,5 @@ func StatusConditionSystem(planets map[string]*world.Planet) {
 			}
 		}
 	}
+	return planets
 }
