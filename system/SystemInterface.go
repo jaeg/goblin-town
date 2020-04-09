@@ -1,8 +1,11 @@
 package system
 
-import "goblin-town/world"
+import (
+	"goblin-town/entity"
+	"goblin-town/world"
+)
 
 // System base system interface
 type System interface {
-	Update(map[string]*world.Planet) map[string]*world.Planet
+	Update(*world.Level, *entity.Entity) *world.Level
 }

@@ -2,6 +2,7 @@ package system
 
 import (
 	"goblin-town/component"
+	"goblin-town/entity"
 	"goblin-town/world"
 )
 
@@ -9,28 +10,24 @@ type InitiativeSystem struct {
 }
 
 // InitiativeSystem .
-func (s InitiativeSystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
-	for _, planet := range planets {
-		for _, level := range planet.Levels {
-			for _, entity := range level.Entities {
-				if entity.HasComponent("InitiativeComponent") {
-					ic := entity.GetComponent("InitiativeComponent").(*component.InitiativeComponent)
-					ic.Ticks--
+func (s InitiativeSystem) Update(level *world.Level, entity *entity.Entity) *world.Level {
 
-					if ic.Ticks <= 0 {
-						ic.Ticks = ic.DefaultValue
-						if ic.OverrideValue > 0 {
-							ic.Ticks = ic.OverrideValue
-						}
+	if entity.HasComponent("InitiativeComponent") {
+		ic := entity.GetComponent("InitiativeComponent").(*component.InitiativeComponent)
+		ic.Ticks--
 
-						if entity.HasComponent("MyTurnComponent") == false {
-							mTC := &component.MyTurnComponent{}
-							entity.AddComponent(mTC)
-						}
-					}
-				}
+		if ic.Ticks <= 0 {
+			ic.Ticks = ic.DefaultValue
+			if ic.OverrideValue > 0 {
+				ic.Ticks = ic.OverrideValue
+			}
+
+			if entity.HasComponent("MyTurnComponent") == false {
+				mTC := &component.MyTurnComponent{}
+				entity.AddComponent(mTC)
 			}
 		}
 	}
-	return planets
+
+	return level
 }

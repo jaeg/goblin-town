@@ -110,17 +110,17 @@ func (s RenderSystem) Cleanup() {
 }
 
 // RenderSystem .
-func (s RenderSystem) Update(planets map[string]*world.Planet) map[string]*world.Planet {
+func (s RenderSystem) Update(level *world.Level) *world.Level {
 	if Keyboard.GetKey("a") == 1 && CameraX > 0 {
 		CameraX--
 	}
-	if Keyboard.GetKey("d") == 1 && CameraX < Window_W {
+	if Keyboard.GetKey("d") == 1 && CameraX < level.Width-Window_W/Tile_Size_W-1 {
 		CameraX++
 	}
 	if Keyboard.GetKey("w") == 1 && CameraY > 0 {
 		CameraY--
 	}
-	if Keyboard.GetKey("s") == 1 && CameraY < Window_H {
+	if Keyboard.GetKey("s") == 1 && CameraY < level.Height-Window_H/Tile_Size_H-1 {
 		CameraY++
 	}
 
@@ -142,7 +142,6 @@ func (s RenderSystem) Update(planets map[string]*world.Planet) map[string]*world
 		Tile_Size_W = 4
 	}
 
-	level := planets["hub"].Levels[0]
 	var seeableEntities []entityView
 	for _, entity := range level.Entities {
 		if entity.HasComponent("AppearanceComponent") {
@@ -153,7 +152,7 @@ func (s RenderSystem) Update(planets map[string]*world.Planet) map[string]*world
 				dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 				dir = dc.Direction
 			}
-			ev := entityView{X: pc.X, Y: pc.Y, SpriteX: ac.SpriteX, SpriteY: ac.SpriteY, Dir: dir, r: ac.R, g: ac.G, b: ac.B}
+			ev := entityView{X: pc.GetX(), Y: pc.GetY(), SpriteX: ac.SpriteX, SpriteY: ac.SpriteY, Dir: dir, r: ac.R, g: ac.G, b: ac.B}
 			seeableEntities = append(seeableEntities, ev)
 		}
 	}
@@ -186,6 +185,15 @@ func (s RenderSystem) Update(planets map[string]*world.Planet) map[string]*world
 
 				if pX == tile.X && pY == tile.Y {
 					drawSprite(tX, tY, 128, 128, 255, 255, 255, uiTexture) //Cursor?
+					entity := level.GetEntityAt(pX, pY)
+					if entity != nil {
+						if entity.HasComponent("GoblinAIComponent") {
+							gAI := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
+							fmt.Println(gAI.State)
+						} else {
+							fmt.Println(len(tile.Entities))
+						}
+					}
 				}
 			}
 		}
@@ -193,7 +201,7 @@ func (s RenderSystem) Update(planets map[string]*world.Planet) map[string]*world
 
 	renderer.Present()
 	sdl.Delay(16)
-	return planets
+	return level
 }
 
 func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
