@@ -17,7 +17,7 @@ It's unknown how goblins actually reproduce, but when there's enough of them aro
 
 ### Linux
 
-The build process has to dependant libraries `X11/Xlib.h` and `asound` these libraries can be installed with:
+The build process has two dependant libraries `X11/Xlib.h` and `asound` these libraries can be installed with:
 
 ```bash
 sudo apt-get install libx11-dev libasound2-dev
