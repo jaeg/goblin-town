@@ -2,7 +2,7 @@ package system
 
 import (
 	"fmt"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/world"
 )
 
 // CleanUpSystem .
