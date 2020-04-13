@@ -1,10 +1,13 @@
 package system
 
 import (
-	"goblin-town/component"
-	"goblin-town/entity"
-	entityFactory "goblin-town/entity"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/world"
+
+	entityFactory "github.com/jaeg/goblin-town/entity"
+
+	"github.com/jaeg/goblin-town/entity"
+
+	"github.com/jaeg/goblin-town/component"
 )
 
 type GoblinAISystem struct {
