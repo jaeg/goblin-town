@@ -2,7 +2,7 @@
 
 GOVERSION=1.14
 
-compile=CGO_ENABLED=1 CC=$(1) GOOS=$(2) GOARCH=$(3) go build -tags static -ldflags "-s -w" -o=$(4) *.go
+compile=CGO_ENABLED=1 GO111MODULE=auto CC=$(1) GOOS=$(2) GOARCH=$(3) go build -tags static -ldflags "-s -w" -o=$(4) *.go
 gofiles=$(wildcard *.go)
 pkgdir=pkg
 name=goblin-town
