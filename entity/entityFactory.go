@@ -50,7 +50,10 @@ func Create(name string, x int, y int) (*Entity, error) {
 	if blueprint != nil {
 		entity := Entity{}
 
-		entity.AddComponent(&component.PositionComponent{X: x, Y: y, Level: 0})
+		pc := &component.PositionComponent{}
+		pc.SetPosition(x, y)
+		entity.AddComponent(pc)
+
 		entity.AddComponent(&component.DirectionComponent{Direction: 0})
 		for _, value := range blueprint {
 			c := strings.Split(value, ":")
@@ -86,7 +89,7 @@ func Create(name string, x int, y int) (*Entity, error) {
 			case "WanderAIComponent":
 				entity.AddComponent(&component.WanderAIComponent{})
 			case "GoblinAIComponent":
-				entity.AddComponent(&component.GoblinAIComponent{Energy: 50, SightRange: 5, HungerThreshold: 30, State: "wander", SocialThreshold: 4, MateThreshold: 2})
+				entity.AddComponent(&component.GoblinAIComponent{Energy: 100, SightRange: 20, HungerThreshold: 90, State: "wander", SocialThreshold: 4, MateThreshold: 2})
 			case "FoodComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.FoodComponent{Amount: amount})

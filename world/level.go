@@ -23,7 +23,7 @@ const (
 type Level struct {
 	data                  [][]Tile
 	Entities              []*entity.Entity
-	width, height         int
+	Width, Height         int
 	id                    int
 	left, right, up, down int
 	theme                 string
@@ -42,16 +42,17 @@ type Tile struct {
 	X         int
 	Y         int
 	Elevation int
+	Entities  []*entity.Entity
 }
 
 func newLevel(width int, height int) (level *Level) {
-	level = &Level{width: width, height: height, left: -1, right: -1, up: -1, down: -1}
+	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height}
 
 	data := make([][]Tile, width, height)
 	for x := 0; x < width; x++ {
 		col := []Tile{}
 		for y := 0; y < height; y++ {
-			col = append(col, Tile{Type: 1, X: x, Y: y, SpriteX: 16, SpriteY: 128})
+			col = append(col, Tile{Type: 4, X: x, Y: y, SpriteX: 16, SpriteY: 128})
 		}
 		data[x] = append(data[x], col...)
 	}
@@ -71,20 +72,20 @@ func NewOverworldSection(width int, height int) (level *Level) {
 			value := int(p.Noise2D(float64(x)/100, float64(y)/100) * 10)
 			tile.Elevation = value
 			if value == -1 {
-				tile.Type = 0
+				tile.Type = 1
 				tile.SpriteX = 176
 				tile.SpriteY = 80
 			}
 
 			//grass
 			if value > -1 {
-				tile.Type = 0
+				tile.Type = 1
 				tile.SpriteX = 128
 				tile.SpriteY = 80
 			}
 
 			if value >= 2 {
-				tile.Type = 0
+				tile.Type = 1
 				tile.SpriteX = 0
 				tile.SpriteY = 80
 			}
@@ -129,10 +130,25 @@ func NewOverworldSection(width int, height int) (level *Level) {
 }
 
 func (level *Level) GetTileAt(x int, y int) (tile *Tile) {
-	if x < level.width && y < level.height && x >= 0 && y >= 0 {
+	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
 		tile = &level.data[x][y]
 	}
 	return
+}
+
+func (level *Level) PlaceEntity(x int, y int, entity *entity.Entity) {
+	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
+		tile := &level.data[x][y]
+		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+		oldTile := &level.data[pc.GetX()][pc.GetY()]
+		for i := 0; i < len(oldTile.Entities); i++ {
+			if oldTile.Entities[i] == entity {
+				oldTile.Entities = append(oldTile.Entities[:i], oldTile.Entities[i+1:]...)
+			}
+		}
+		tile.Entities = append(tile.Entities, entity)
+		pc.SetPosition(x, y)
+	}
 }
 
 //Get's the view frustum with the player in the center
@@ -175,19 +191,23 @@ func (level *Level) GetEntitiesAround(x int, y int, width int, height int) (enti
 	up := y - height/2
 	down := y + height/2
 
-	entitiesLen := len(level.Entities)
+	for x := left; x < right; x++ {
+		for y := up; y < down; y++ {
+			tile := level.GetTileAt(x, y)
+			if tile != nil {
+				if len(tile.Entities) > 0 {
+					entity := tile.Entities[0]
 
-	for i := 0; i < entitiesLen; i++ {
-		entity := level.Entities[i]
-
-		if entity.HasComponent("PositionComponent") {
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-			if pc.X >= left && pc.X <= right && pc.Y >= up && pc.Y <= down {
-				entities = append(entities, entity)
+					if entity.HasComponent("PositionComponent") {
+						pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+						if pc.GetX() >= left && pc.GetX() <= right && pc.GetY() >= up && pc.GetY() <= down {
+							entities = append(entities, entity)
+						}
+					}
+				}
 			}
 		}
 	}
-
 	return
 }
 
@@ -204,7 +224,7 @@ func (level *Level) GetPlayersAround(x int, y int, width int, height int) (entit
 
 		if entity.HasComponent("PositionComponent") {
 			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-			if pc.X >= left && pc.X <= right && pc.Y >= up && pc.Y <= down {
+			if pc.GetX() >= left && pc.GetX() <= right && pc.GetY() >= up && pc.GetY() <= down {
 				if entity.HasComponent("PlayerComponent") {
 					entities = append(entities, entity)
 				}
@@ -216,31 +236,28 @@ func (level *Level) GetPlayersAround(x int, y int, width int, height int) (entit
 }
 
 func (level *Level) GetEntityAt(x int, y int) (entity *entity.Entity) {
-	for i := 0; i < len(level.Entities); i++ {
-		entity = level.Entities[i]
-		if entity.HasComponent("PositionComponent") {
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-			if pc.X == x && pc.Y == y {
-				return
-			}
+	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
+		tile := &level.data[x][y]
+		if len(tile.Entities) > 0 {
+			return tile.Entities[0]
 		}
 	}
+
 	entity = nil
 	return
 }
 
 func (level *Level) GetSolidEntityAt(x int, y int) (entity *entity.Entity) {
-	for i := 0; i < len(level.Entities); i++ {
-		entity = level.Entities[i]
-		if entity.HasComponent("PositionComponent") {
-			if entity.HasComponent("SolidComponent") {
-				pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-				if pc.X == x && pc.Y == y {
-					return
-				}
+	if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
+		tile := &level.data[x][y]
+		if len(tile.Entities) > 0 {
+			if tile.Entities[0].HasComponent("SolidComponent") {
+
+				return tile.Entities[0]
 			}
 		}
 	}
+
 	entity = nil
 	return
 }
@@ -251,7 +268,7 @@ func (level *Level) GetInteractableEntityAt(x int, y int) (entity *entity.Entity
 		if entity.HasComponent("PositionComponent") {
 			if entity.HasComponent("InteractComponent") {
 				pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-				if pc.X == x && pc.Y == y {
+				if pc.GetX() == x && pc.GetY() == y {
 					return
 				}
 			}
@@ -263,13 +280,33 @@ func (level *Level) GetInteractableEntityAt(x int, y int) (entity *entity.Entity
 
 func (level *Level) AddEntity(entity *entity.Entity) {
 	level.Entities = append(level.Entities, entity)
+	if entity.HasComponent("PositionComponent") {
+		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+		x := pc.GetX()
+		y := pc.GetY()
+		level.PlaceEntity(x, y, entity)
+	}
 }
 
 func (level *Level) RemoveEntity(entity *entity.Entity) {
+	if entity.HasComponent("PositionComponent") {
+		pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+		x := pc.GetX()
+		y := pc.GetY()
+
+		if x < level.Width && y < level.Height && x >= 0 && y >= 0 {
+			tile := &level.data[pc.GetX()][pc.GetY()]
+			for i := 0; i < len(tile.Entities); i++ {
+				if tile.Entities[i] == entity {
+					tile.Entities = append(tile.Entities[:i], tile.Entities[i+1:]...)
+				}
+			}
+		}
+	}
 	for i := 0; i < len(level.Entities); i++ {
 		if level.Entities[i] == entity {
 			level.Entities = append(level.Entities[:i], level.Entities[i+1:]...)
-
+			return
 		}
 	}
 }
@@ -309,6 +346,48 @@ func (level *Level) createCluster(x int, y int, size int, spriteX int32, spriteY
 				tile.Type = 1
 			}
 
+		}
+	}
+}
+
+func (level *Level) CreateClusterOfGoblins(x int, y int, size int) {
+	for i := 0; i < size; i++ {
+		n := getRandom(1, 6)
+		e := getRandom(1, 6)
+		s := getRandom(1, 6)
+		w := getRandom(1, 6)
+
+		if n == 1 {
+			x += 1
+		}
+
+		if s == 1 {
+			x--
+		}
+
+		if e == 1 {
+			y++
+		}
+
+		if w == 1 {
+			y--
+		}
+
+		tries := 0
+		if level.GetTileAt(x, y) != nil {
+			tile := level.GetTileAt(x, y)
+			if tile.Type != 2 && tile.Type != 4 && level.GetEntityAt(x, y) == nil {
+				goblin, err := entity.Create("goblin", x, y)
+				if err == nil {
+					level.AddEntity(goblin)
+				}
+			} else {
+				i--
+				tries++
+			}
+			if tries > 10 {
+				continue
+			}
 		}
 	}
 }
