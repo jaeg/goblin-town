@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"goblin-town/component"
+	"goblin-town/lore"
 	"os"
 	"strconv"
 	"strings"
@@ -88,7 +89,7 @@ func Create(name string, x int, y int) (*Entity, error) {
 			case "WanderAIComponent":
 				entity.AddComponent(&component.WanderAIComponent{})
 			case "GoblinAIComponent":
-				entity.AddComponent(&component.GoblinAIComponent{Energy: 100, SightRange: 20, HungerThreshold: 90, State: "wander", SocialThreshold: 4, MateThreshold: 2})
+				entity.AddComponent(&component.GoblinAIComponent{Energy: 100, SightRange: 20, HungerThreshold: 90, State: "wander", SocialThreshold: 4, MateThreshold: 2, Name: lore.RandomGoblinName()})
 			case "FoodComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.FoodComponent{Amount: amount})

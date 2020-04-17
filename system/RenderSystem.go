@@ -220,6 +220,22 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 						drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
 
+						//Temp select code
+						if pX == tile.X && pY == tile.Y && Mouse.Clicked {
+							for _, entity := range level.Entities {
+								if entity.HasComponent("SelectedComponent") {
+									entity.RemoveComponent("SelectedComponent")
+								}
+							}
+							entity.AddComponent(component.SelectedComponent{})
+						}
+						if entity.HasComponent("SelectedComponent") {
+							drawSprite(tX, tY, 112, 128, 255, 255, 255, uiTexture)
+							if entity.HasComponent("GoblinAIComponent") {
+								gc := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
+								fmt.Println(gc.Name)
+							}
+						}
 					}
 				}
 				if pX == tile.X && pY == tile.Y {
@@ -230,7 +246,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 	}
 
 	renderer.Present()
-	sdl.Delay(16)
+
 	return level
 }
 

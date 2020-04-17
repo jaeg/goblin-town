@@ -7,9 +7,9 @@ import (
 )
 
 type mouse struct {
-	X, Y   int
-	Button int
-	State  int
+	X, Y    int
+	Button  int
+	Clicked bool
 }
 
 type keyboard struct {
@@ -41,7 +41,11 @@ func InputSystem() {
 			Mouse.X = int(t.X)
 			Mouse.Y = int(t.Y)
 			Mouse.Button = int(t.Button)
-			Mouse.State = int(t.State)
+			if t.State == sdl.PRESSED {
+				Mouse.Clicked = true
+			} else {
+				Mouse.Clicked = false
+			}
 		}
 	}
 }
