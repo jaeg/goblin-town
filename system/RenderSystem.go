@@ -20,13 +20,6 @@ const Window_H = 576
 const World_W = 800
 const World_H = 576
 
-type entityView struct {
-	X, Y             int
-	SpriteX, SpriteY int32
-	Dir              int
-	r, g, b          uint8
-}
-
 type RenderSystem struct {
 }
 
@@ -117,6 +110,7 @@ func (s RenderSystem) Cleanup() {
 func (s RenderSystem) Update(level *world.Level) *world.Level {
 	pX := Mouse.X/Tile_Size_W + CameraX
 	pY := Mouse.Y/Tile_Size_H + CameraY
+
 	if Keyboard.GetKey("a") == 1 && CameraX > 0 {
 		CameraX--
 	}
@@ -197,21 +191,6 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 		releasedZoom = true
 	}
 
-	var seeableEntities []entityView
-	for _, entity := range level.Entities {
-		if entity.HasComponent("AppearanceComponent") {
-			ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-			dir := 0
-			if entity.HasComponent("DirectionComponent") {
-				dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
-				dir = dc.Direction
-			}
-			ev := entityView{X: pc.GetX(), Y: pc.GetY(), SpriteX: ac.SpriteX, SpriteY: ac.SpriteY, Dir: dir, r: ac.R, g: ac.G, b: ac.B}
-			seeableEntities = append(seeableEntities, ev)
-		}
-	}
-
 	viewWidth := World_W / Tile_Size_W
 	viewHeight := World_H / Tile_Size_H
 
@@ -229,23 +208,22 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 			if tile == nil {
 				drawSprite(tX, tY, 0, 112, 255, 255, 255, worldTexture) //Empty space
 			} else {
-				for _, entity := range seeableEntities {
-					if entity.X == tile.X && entity.Y == tile.Y {
-						drawSprite(tX, tY, entity.SpriteX+(int32(entity.Dir)*Sprite_Size_W), entity.SpriteY, entity.r, entity.g, entity.b, characterTexture) //Entity
+				//Draw entity on tile.
+				entity := level.GetEntityAt(tile.X, tile.Y)
+				if entity != nil {
+					if entity.HasComponent("AppearanceComponent") {
+						ac := entity.GetComponent("AppearanceComponent").(*component.AppearanceComponent)
+						dir := 0
+						if entity.HasComponent("DirectionComponent") {
+							dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
+							dir = dc.Direction
+						}
+						drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+
 					}
 				}
-
 				if pX == tile.X && pY == tile.Y {
 					drawSprite(tX, tY, 128, 128, 255, 255, 255, uiTexture) //Cursor?
-					entity := level.GetEntityAt(pX, pY)
-					if entity != nil {
-						if entity.HasComponent("GoblinAIComponent") {
-							gAI := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
-							fmt.Println(gAI.State)
-						} else {
-							fmt.Println(len(tile.Entities))
-						}
-					}
 				}
 			}
 		}
