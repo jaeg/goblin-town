@@ -2,7 +2,7 @@ package system
 
 import (
 	"fmt"
-	"goblin-town/component"
+	"github.com/jaeg/goblin-town/component"
 )
 
 // HelloWorldSystem .

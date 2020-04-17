@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"math/rand"
 
-	"goblin-town/component"
-	"goblin-town/entity"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/world"
+
+	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/entity"
 )
 
 func getRandom(low int, high int) int {

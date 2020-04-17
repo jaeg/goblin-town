@@ -6,9 +6,10 @@ import (
 	"math/rand"
 	"time"
 
-	"goblin-town/entity"
-	"goblin-town/system"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/world"
+
+	"github.com/jaeg/goblin-town/entity"
+	"github.com/jaeg/goblin-town/system"
 )
 
 var planets map[string]*world.Planet
