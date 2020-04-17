@@ -10,13 +10,15 @@ import (
 	"github.com/veandco/go-sdl2/sdl"
 )
 
-var Tile_Size_W = 16
-var Tile_Size_H = 16
+var Tile_Size_W = 32
+var Tile_Size_H = 32
 
 const Sprite_Size_H = 16
 const Sprite_Size_W = 16
-const Window_W = 800
-const Window_H = 600
+const Window_W = 1000
+const Window_H = 576
+const World_W = 800
+const World_H = 576
 
 type entityView struct {
 	X, Y             int
@@ -38,6 +40,8 @@ var CameraX = 0
 var CameraY = 0
 
 var Zoom = 1
+
+var releasedZoom = true
 
 func (s RenderSystem) Init() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
@@ -111,35 +115,86 @@ func (s RenderSystem) Cleanup() {
 
 // RenderSystem .
 func (s RenderSystem) Update(level *world.Level) *world.Level {
+	pX := Mouse.X/Tile_Size_W + CameraX
+	pY := Mouse.Y/Tile_Size_H + CameraY
 	if Keyboard.GetKey("a") == 1 && CameraX > 0 {
 		CameraX--
 	}
-	if Keyboard.GetKey("d") == 1 && CameraX < level.Width-Window_W/Tile_Size_W-1 {
+	if Keyboard.GetKey("d") == 1 && CameraX < level.Width-World_W/Tile_Size_W-1 {
 		CameraX++
 	}
 	if Keyboard.GetKey("w") == 1 && CameraY > 0 {
 		CameraY--
 	}
-	if Keyboard.GetKey("s") == 1 && CameraY < level.Height-Window_H/Tile_Size_H-1 {
+	if Keyboard.GetKey("s") == 1 && CameraY < level.Height-World_H/Tile_Size_H-1 {
 		CameraY++
 	}
 
 	if Keyboard.GetKey("1") == 1 {
-		Tile_Size_H = 32
-		Tile_Size_W = 32
+		if releasedZoom == true {
+			Tile_Size_H = 32
+			Tile_Size_W = 32
+			CameraX = Mouse.X/Tile_Size_W + CameraX
+			CameraY = Mouse.Y/Tile_Size_H + CameraY
+
+			if CameraY > level.Height-World_H/Tile_Size_H-1 {
+				CameraY = level.Height - World_H/Tile_Size_H - 1
+			}
+
+			if CameraX > level.Width-World_W/Tile_Size_W-1 {
+				CameraX = level.Width - World_W/Tile_Size_W - 1
+			}
+			releasedZoom = false
+		}
+
 	}
 	if Keyboard.GetKey("2") == 1 {
-		Tile_Size_H = 16
-		Tile_Size_W = 16
+		if releasedZoom == true {
+			Tile_Size_H = 16
+			Tile_Size_W = 16
+			CameraX = Mouse.X/Tile_Size_W + CameraX
+			CameraY = Mouse.Y/Tile_Size_H + CameraY
+
+			if CameraY > level.Height-World_H/Tile_Size_H-1 {
+				CameraY = level.Height - World_H/Tile_Size_H - 1
+			}
+
+			if CameraX > level.Width-World_W/Tile_Size_W-1 {
+				CameraX = level.Width - World_W/Tile_Size_W - 1
+			}
+			releasedZoom = false
+		}
 	}
 	if Keyboard.GetKey("3") == 1 {
-		Tile_Size_H = 8
-		Tile_Size_W = 8
+		if releasedZoom == true {
+			Tile_Size_H = 8
+			Tile_Size_W = 8
+			CameraX = Mouse.X/Tile_Size_W + CameraX
+			CameraY = Mouse.Y/Tile_Size_H + CameraY
+
+			if CameraY > level.Height-World_H/Tile_Size_H-1 {
+				CameraY = level.Height - World_H/Tile_Size_H - 1
+			}
+
+			if CameraX > level.Width-World_W/Tile_Size_W-1 {
+				CameraX = level.Width - World_W/Tile_Size_W - 1
+			}
+			releasedZoom = false
+		}
 	}
 
 	if Keyboard.GetKey("4") == 1 {
-		Tile_Size_H = 4
-		Tile_Size_W = 4
+		if releasedZoom == true {
+			Tile_Size_H = 4
+			Tile_Size_W = 4
+			CameraX = 0
+			CameraY = 0
+			releasedZoom = false
+		}
+	}
+
+	if Keyboard.GetKey("4") == 0 && Keyboard.GetKey("1") == 0 && Keyboard.GetKey("2") == 0 && Keyboard.GetKey("3") == 0 && Keyboard.GetKey("4") == 0 {
+		releasedZoom = true
 	}
 
 	var seeableEntities []entityView
@@ -157,11 +212,8 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 		}
 	}
 
-	viewWidth := Window_W / Tile_Size_W
-	viewHeight := Window_H / Tile_Size_H
-
-	pX := Mouse.X/Tile_Size_W + CameraX
-	pY := Mouse.Y/Tile_Size_H + CameraY
+	viewWidth := World_W / Tile_Size_W
+	viewHeight := World_H / Tile_Size_H
 
 	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false, false)
 
