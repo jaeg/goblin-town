@@ -300,6 +300,18 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 								drawText(World_W, 75, "Energy:"+strconv.Itoa(gc.Energy))
 							}
 
+							if entity.HasComponent("HealthComponent") {
+								gc := entity.GetComponent("HealthComponent").(*component.HealthComponent)
+
+								drawText(World_W, 85, "Hp:"+strconv.Itoa(gc.Health))
+							}
+
+							if entity.HasComponent("DeadComponent") {
+								fmt.Println("Dead")
+								drawText(World_W, 0, "Dead")
+
+							}
+
 						}
 					}
 				}

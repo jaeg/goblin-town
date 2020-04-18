@@ -16,6 +16,15 @@ WanderAIComponent:
 DefensiveAIComponent:
 InitiativeComponent:60,1
 
+snake
+DescriptionComponent:Snake
+AppearanceComponent:192,240,255,255,255
+HealthComponent:1
+SolidComponent:
+FoodComponent:10
+HostileAIComponent:
+InitiativeComponent:60,1
+
 food
 AppearanceComponent:0,272,255,255,255
 SolidComponent:

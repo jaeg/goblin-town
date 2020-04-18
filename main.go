@@ -34,8 +34,8 @@ func main() {
 		tile := level.GetTileAt(x, y)
 		fmt.Println(tile, x, y)
 		for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
-			x := rand.Intn(WIDTH)
-			y := rand.Intn(HEIGHT)
+			x = rand.Intn(WIDTH)
+			y = rand.Intn(HEIGHT)
 			tile = level.GetTileAt(x, y)
 		}
 		level.CreateClusterOfGoblins(x, y, STARTING_GOBLINS)
@@ -49,8 +49,8 @@ func main() {
 		tile := level.GetTileAt(x, y)
 		tries := 0
 		for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
-			x := rand.Intn(WIDTH)
-			y := rand.Intn(HEIGHT)
+			x = rand.Intn(WIDTH)
+			y = rand.Intn(HEIGHT)
 			tile = level.GetTileAt(x, y)
 			tries++
 			if tries > 10 {
@@ -61,6 +61,31 @@ func main() {
 			continue
 		}
 		food, err := entity.Create("rat", x, y)
+		if err == nil {
+			level.AddEntity(food)
+		}
+	}
+
+	fmt.Println("Placing snakes")
+	//Random snakes
+	for i := 0; i < 200; i++ {
+		x := rand.Intn(WIDTH)
+		y := rand.Intn(HEIGHT)
+		tile := level.GetTileAt(x, y)
+		tries := 0
+		for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
+			x = rand.Intn(WIDTH)
+			y = rand.Intn(HEIGHT)
+			tile = level.GetTileAt(x, y)
+			tries++
+			if tries > 10 {
+				break
+			}
+		}
+		if tries > 10 {
+			continue
+		}
+		food, err := entity.Create("snake", x, y)
 		if err == nil {
 			level.AddEntity(food)
 		}
