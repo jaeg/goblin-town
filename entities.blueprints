@@ -20,6 +20,7 @@ snake
 DescriptionComponent:Snake
 AppearanceComponent:192,240,255,255,255
 HealthComponent:5
+DamageComponent:2
 SolidComponent:
 FoodComponent:4
 HostileAIComponent:

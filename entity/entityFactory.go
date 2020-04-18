@@ -98,6 +98,9 @@ func Create(name string, x int, y int) (*Entity, error) {
 			case "HealthComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.HealthComponent{Health: amount})
+			case "DamageComponent":
+				amount, _ := strconv.Atoi(params[0])
+				entity.AddComponent(&component.DamageComponent{Amount: amount})
 			case "DefensiveAIComponent":
 				entity.AddComponent(&component.DefensiveAIComponent{})
 			case "DescriptionComponent":

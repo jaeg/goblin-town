@@ -10,9 +10,14 @@ func hit(entity *entity.Entity, entityHit *entity.Entity) {
 	if entityHit != entity {
 		//Attack it
 		if entityHit.HasComponent("HealthComponent") {
+			damage := 1
+			if entityHit.HasComponent("DamageComponent") {
+				dc := entityHit.GetComponent("DamageComponent").(*component.DamageComponent)
+				damage = dc.Amount
+			}
 			ehc := entityHit.GetComponent("HealthComponent").(*component.HealthComponent)
 			if ehc.Health > 0 {
-				ehc.Health--
+				ehc.Health -= damage
 			}
 		}
 
