@@ -86,32 +86,35 @@ func (s AISystem) Update(level *world.Level, entity *entity.Entity) *world.Level
 			}
 			//Scan around for food to the best my vision allows me.
 			nearby := level.GetEntitiesAround(pc.GetX(), pc.GetY(), hc.SightRange, hc.SightRange)
-
+			hunting := false
 			for e := range nearby {
 				if nearby[e] != entity {
 					if (nearby[e].HasComponent("FoodComponent") || nearby[e].HasComponent("GoblinAIComponent")) && !nearby[e].HasComponent("DeadComponent") {
 						foodPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
 						hc.TargetX = foodPC.GetX()
 						hc.TargetY = foodPC.GetY()
+						hunting = true
 						break
 					}
 				}
 			}
 
-			if pc.GetX() < hc.TargetX {
-				deltaX = 1
-			}
+			if hunting {
+				if pc.GetX() < hc.TargetX {
+					deltaX = 1
+				}
 
-			if pc.GetX() > hc.TargetX {
-				deltaX = -1
-			}
+				if pc.GetX() > hc.TargetX {
+					deltaX = -1
+				}
 
-			if pc.GetY() < hc.TargetY {
-				deltaY = 1
-			}
+				if pc.GetY() < hc.TargetY {
+					deltaY = 1
+				}
 
-			if pc.GetY() > hc.TargetY {
-				deltaY = -1
+				if pc.GetY() > hc.TargetY {
+					deltaY = -1
+				}
 			}
 
 			//Found nothing, wander

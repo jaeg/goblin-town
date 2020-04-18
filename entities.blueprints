@@ -1,6 +1,6 @@
 goblin
 DescriptionComponent:<GoblinName>
-HealthComponent:5
+HealthComponent:10
 AppearanceComponent:0,112,255,255,255
 SolidComponent:
 GoblinAIComponent:
@@ -19,9 +19,9 @@ InitiativeComponent:60,1
 snake
 DescriptionComponent:Snake
 AppearanceComponent:192,240,255,255,255
-HealthComponent:1
+HealthComponent:5
 SolidComponent:
-FoodComponent:10
+FoodComponent:4
 HostileAIComponent:
 InitiativeComponent:60,1
 
