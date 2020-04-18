@@ -17,10 +17,12 @@ var Tile_Size_H = 32
 
 const Sprite_Size_H = 16
 const Sprite_Size_W = 16
-const Window_W = 1000
+const Window_W = 992
 const Window_H = 576
 const World_W = 800
 const World_H = 576
+const MiniMap_X = World_W + 1
+const MiniMap_Y = 200
 
 type RenderSystem struct {
 }
@@ -31,6 +33,7 @@ var worldTexture *sdl.Texture
 var uiTexture *sdl.Texture
 var window *sdl.Window
 var font *ttf.Font
+var miniMapTexture *sdl.Texture
 
 var CameraX = 0
 var CameraY = 0
@@ -107,6 +110,8 @@ func (s RenderSystem) Init() {
 		fmt.Printf("Failed to open font: %s\n", err)
 		return
 	}
+
+	//Generate mini map
 
 	sdl.ShowCursor(0)
 }
@@ -212,6 +217,44 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false, false)
 
 	renderer.Clear()
+
+	//Draw menu
+	for x := World_W; x < Window_W; x += 16 {
+		for y := 0; y < Window_H; y += 16 {
+			var sX int32
+			var sY int32
+			sX = 112
+			sY = 16
+			if x == World_W && y == 0 {
+				sY = 0
+				sX = 96
+			} else if x == Window_W-16 && y == 0 {
+				sY = 0
+				sX = 128
+			} else if x == 0 && y == Window_H {
+				sY = 24
+				sX = 96
+			} else if x == Window_W && y == Window_H {
+				sY = 24
+				sX = 128
+			}
+			drawSprite(int32(x), int32(y), sX, sY, 255, 255, 255, uiTexture)
+		}
+	}
+
+	if miniMapTexture == nil {
+		CreateMiniMap(level)
+		fmt.Println("Create mini map")
+	} else {
+		_, _, w, h, _ := miniMapTexture.Query()
+		src := sdl.Rect{X: 0, Y: 0, W: w, H: h}
+		dst := sdl.Rect{X: MiniMap_X, Y: MiniMap_Y, W: 200, H: 200}
+		renderer.Copy(miniMapTexture, &src, &dst)
+
+		renderer.DrawRect(&sdl.Rect{X: int32(MiniMap_X + CameraX), Y: int32(MiniMap_Y + CameraY), W: int32(len(view)), H: int32(len(view[0]))})
+	}
+
+	//Draw world
 	for x := 0; x < len(view); x++ {
 		for y := 0; y < len(view[x]); y++ {
 			tX := int32(x * Tile_Size_W)
@@ -294,10 +337,11 @@ func drawText(x int32, y int32, text string) {
 	var err error
 
 	var solidSurface *sdl.Surface
-	if solidSurface, err = font.RenderUTF8BlendedWrapped(text, sdl.Color{255, 255, 255, 255}, 200); err != nil {
+	if solidSurface, err = font.RenderUTF8BlendedWrapped(text, sdl.Color{255, 255, 255, 255}, 192); err != nil {
 		fmt.Printf("Failed to render text: %s\n", err)
 		return
 	}
+
 	if solidTexture, err = renderer.CreateTextureFromSurface(solidSurface); err != nil {
 		fmt.Printf("Failed to create texture: %s\n", err)
 		return
@@ -307,4 +351,42 @@ func drawText(x int32, y int32, text string) {
 	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
 	renderer.Copy(solidTexture, nil, &dst)
 	solidTexture.Destroy()
+}
+
+func CreateMiniMap(level *world.Level) {
+	image, err := img.Load("tiny_dungeon_world.png")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
+		return
+	}
+
+	surface, err := sdl.CreateRGBSurface(0, int32(level.Width), int32(level.Height), 16, 0, 0, 0, 0)
+
+	if err != nil {
+		fmt.Printf("Failed to create minimap surface: %s\n", err)
+		return
+	}
+	//Draw minimap
+	for x := 0; x < level.Width; x++ {
+		for y := 0; y < level.Height; y++ {
+			tX := int32(x)
+			tY := int32(y)
+			tile := level.GetTileAt(x, y)
+
+			src := &sdl.Rect{X: tile.SpriteX, Y: tile.SpriteY, W: Sprite_Size_W, H: Sprite_Size_H}
+			dst := &sdl.Rect{X: tX, Y: tY, W: 1, H: 1}
+			err = image.Blit(src, surface, dst)
+			if err != nil {
+				fmt.Printf("Failed to create minimap surface: %s\n", err)
+				return
+			}
+		}
+	}
+
+	if miniMapTexture, err = renderer.CreateTextureFromSurface(surface); err != nil {
+		fmt.Printf("Failed to create minimap texture: %s\n", err)
+		return
+	}
+	image.Free()
+	surface.Free()
 }
