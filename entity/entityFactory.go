@@ -89,7 +89,7 @@ func Create(name string, x int, y int) (*Entity, error) {
 			case "WanderAIComponent":
 				entity.AddComponent(&component.WanderAIComponent{})
 			case "GoblinAIComponent":
-				entity.AddComponent(&component.GoblinAIComponent{Energy: 100, SightRange: 20, HungerThreshold: 90, State: "wander", SocialThreshold: 4, MateThreshold: 2, Name: lore.RandomGoblinName()})
+				entity.AddComponent(&component.GoblinAIComponent{Energy: 100, SightRange: 20, HungerThreshold: 90, State: "wander", SocialThreshold: 4, MateThreshold: 2})
 			case "FoodComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.FoodComponent{Amount: amount})
@@ -98,6 +98,12 @@ func Create(name string, x int, y int) (*Entity, error) {
 				entity.AddComponent(&component.HealthComponent{Health: amount})
 			case "DefensiveAIComponent":
 				entity.AddComponent(&component.DefensiveAIComponent{})
+			case "DescriptionComponent":
+				name := params[0]
+				if name == "<GoblinName>" {
+					name = lore.RandomGoblinName()
+				}
+				entity.AddComponent(&component.DescriptionComponent{Name: name})
 			}
 		}
 		return &entity, nil

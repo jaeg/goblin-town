@@ -2,7 +2,6 @@ package component
 
 // GoblinAIComponent .
 type GoblinAIComponent struct {
-	Name            string
 	Energy          int
 	SightRange      int
 	HungerThreshold int

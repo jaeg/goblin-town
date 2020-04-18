@@ -5,9 +5,11 @@ import (
 	"goblin-town/component"
 	"goblin-town/world"
 	"os"
+	"strconv"
 
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"
+	"github.com/veandco/go-sdl2/ttf"
 )
 
 var Tile_Size_W = 32
@@ -28,6 +30,7 @@ var characterTexture *sdl.Texture
 var worldTexture *sdl.Texture
 var uiTexture *sdl.Texture
 var window *sdl.Window
+var font *ttf.Font
 
 var CameraX = 0
 var CameraY = 0
@@ -46,6 +49,11 @@ func (s RenderSystem) Init() {
 		Window_W, Window_H, sdl.WINDOW_SHOWN)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create window: %s\n", err)
+		return
+	}
+
+	if err = ttf.Init(); err != nil {
+		fmt.Printf("Failed to initialize TTF: %s\n", err)
 		return
 	}
 
@@ -92,6 +100,11 @@ func (s RenderSystem) Init() {
 	uiTexture, err = renderer.CreateTextureFromSurface(image)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
+		return
+	}
+
+	if font, err = ttf.OpenFont("Roboto-Regular.ttf", 30); err != nil {
+		fmt.Printf("Failed to open font: %s\n", err)
 		return
 	}
 }
@@ -231,10 +244,17 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 						if entity.HasComponent("SelectedComponent") {
 							drawSprite(tX, tY, 112, 128, 255, 255, 255, uiTexture)
+							if entity.HasComponent("DescriptionComponent") {
+								dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+								drawText(World_W, 10, dc.Name)
+							}
 							if entity.HasComponent("GoblinAIComponent") {
 								gc := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
-								fmt.Println(gc.Name)
+
+								drawText(World_W, 50, gc.State)
+								drawText(World_W, 75, "Energy:"+strconv.Itoa(gc.Energy))
 							}
+
 						}
 					}
 				}
@@ -255,4 +275,25 @@ func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8,
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
 	renderer.Copy(texture, &src, &dst)
+}
+
+func drawText(x int32, y int32, text string) {
+
+	var solidTexture *sdl.Texture
+	var err error
+
+	var solidSurface *sdl.Surface
+	if solidSurface, err = font.RenderUTF8BlendedWrapped(text, sdl.Color{255, 255, 255, 255}, 200); err != nil {
+		fmt.Printf("Failed to render text: %s\n", err)
+		return
+	}
+	if solidTexture, err = renderer.CreateTextureFromSurface(solidSurface); err != nil {
+		fmt.Printf("Failed to create texture: %s\n", err)
+		return
+	}
+	solidSurface.Free()
+	_, _, w, h, err := solidTexture.Query()
+	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
+	renderer.Copy(solidTexture, nil, &dst)
+	solidTexture.Destroy()
 }
