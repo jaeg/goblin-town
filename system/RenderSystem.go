@@ -107,6 +107,8 @@ func (s RenderSystem) Init() {
 		fmt.Printf("Failed to open font: %s\n", err)
 		return
 	}
+
+	sdl.ShowCursor(0)
 }
 
 func (s RenderSystem) Cleanup() {
@@ -258,8 +260,17 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 					}
 				}
+				var cursorY int32
+				cursorY = 128
+				if Mouse.Clicked {
+					cursorY = 144
+				}
 				if pX == tile.X && pY == tile.Y {
-					drawSprite(tX, tY, 128, 128, 255, 255, 255, uiTexture) //Cursor?
+					drawSprite(tX, tY, 128, cursorY, 255, 255, 255, uiTexture) //Cursor?
+				}
+
+				if Mouse.X > World_W {
+					drawSprite(int32(Mouse.X), int32(Mouse.Y), 64, cursorY, 255, 255, 255, uiTexture) //Cursor?
 				}
 			}
 		}
