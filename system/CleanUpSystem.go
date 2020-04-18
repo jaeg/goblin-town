@@ -1,7 +1,7 @@
 package system
 
 import (
-	"fmt"
+	"goblin-town/component"
 	"goblin-town/world"
 )
 
@@ -16,8 +16,14 @@ func (s CleanUpSystem) Update(level *world.Level) *world.Level {
 		}
 
 		if entity.HasComponent("DeadComponent") {
-			level.RemoveEntity(entity)
-			fmt.Println("Killed")
+			if entity.HasComponent("FoodComponent") {
+				fc := entity.GetComponent("FoodComponent").(*component.FoodComponent)
+				if fc.Amount <= 0 {
+					level.RemoveEntity(entity)
+				}
+			} else {
+				level.RemoveEntity(entity)
+			}
 		}
 
 	}

@@ -307,9 +307,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 							}
 
 							if entity.HasComponent("DeadComponent") {
-								fmt.Println("Dead")
 								drawText(World_W, 0, "Dead")
-
 							}
 
 						}
