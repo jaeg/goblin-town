@@ -276,7 +276,11 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 							dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 							dir = dc.Direction
 						}
-						drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+						if entity.HasComponent("DeadComponent") {
+							drawSpriteUpsideDown(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+						} else {
+							drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+						}
 
 						//Temp select code
 						if pX == tile.X && pY == tile.Y && Mouse.Clicked {
@@ -339,6 +343,15 @@ func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8,
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
 	renderer.Copy(texture, &src, &dst)
+
+}
+
+func drawSpriteUpsideDown(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
+	texture.SetColorMod(r, g, b)
+	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
+	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
+	renderer.CopyEx(texture, &src, &dst, 0, nil, sdl.FLIP_VERTICAL)
+
 }
 
 func drawText(x int32, y int32, text string) {
