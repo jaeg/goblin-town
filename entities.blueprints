@@ -128,6 +128,24 @@ HostileAIComponent:10
 InitiativeComponent:90,1
 MassiveComponent:
 
+griffon
+DescriptionComponent:Griffon
+AppearanceComponent:192,384,255,255,255
+HealthComponent:7
+DamageComponent:3
+SolidComponent:
+HostileAIComponent:20
+InitiativeComponent:40,1
+
+darkknight
+DescriptionComponent:DarkKnight
+AppearanceComponent:192,160,255,255,255
+HealthComponent:10
+DamageComponent:3
+SolidComponent:
+HostileAIComponent:10
+InitiativeComponent:30,1
+
 food
 AppearanceComponent:0,272,255,255,255
 SolidComponent:

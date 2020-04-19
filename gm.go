@@ -14,7 +14,8 @@ const FOOD_INITIAL = 200
 const HOSTILE_INITIAL = 200
 
 var HOSTILES = []string{"snake", "skeleton", "spider", "zombie"}
-var RARE_HOSTILES = []string{"giant", "centaur"}
+var RARE_HOSTILES = []string{"giant", "centaur", "griffon"}
+var EPIC_HOSTILES = []string{"darkknight"}
 
 var FOOD = []string{"rat", "dog", "cat", "roach"}
 
@@ -167,6 +168,10 @@ func (gm *GameMaster) Update() {
 			if getRandom(0, 500) == 0 {
 				fmt.Println("Spawn a rare hostile enemy!")
 				blueprint = RARE_HOSTILES[getRandom(0, len(RARE_HOSTILES))]
+				if getRandom(0, 500) == 0 {
+					fmt.Println("!!Spawned an epic hostile enemy instead!!")
+					blueprint = EPIC_HOSTILES[getRandom(0, len(EPIC_HOSTILES))]
+				}
 			}
 			food, err := entity.Create(blueprint, x, y)
 			if err == nil {
