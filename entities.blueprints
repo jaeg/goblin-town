@@ -1,3 +1,9 @@
+tree
+DescriptionComponent:Tree
+AppearanceComponent:80,256,255,255,255
+SolidComponent:
+InanimateComponent:
+
 goblin
 DescriptionComponent:<GoblinName>,goblin
 HealthComponent:10
@@ -110,6 +116,7 @@ NocturnalComponent:
 SolidComponent:
 HostileAIComponent:10
 InitiativeComponent:60,1
+MassiveComponent:
 
 food
 AppearanceComponent:0,272,255,255,255

@@ -73,6 +73,10 @@ func Create(name string, x int, y int) (*Entity, error) {
 				entity.AddComponent(&component.InitiativeComponent{DefaultValue: dv, Ticks: ticks})
 			case "SolidComponent":
 				entity.AddComponent(&component.SolidComponent{})
+			case "InanimateComponent":
+				entity.AddComponent(&component.InanimateComponent{})
+			case "MassiveComponent":
+				entity.AddComponent(&component.MassiveComponent{})
 			case "NocturnalComponent":
 				entity.AddComponent(&component.NocturnalComponent{})
 			case "NeverSleepComponent":

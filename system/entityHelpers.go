@@ -98,6 +98,11 @@ func move(entity *entity.Entity, level *world.Level, deltaX int, deltaY int) boo
 
 		}
 		return false
+	} else {
+		//If we are massive we destroy what we moved into if it's not also massive.
+		if entity.HasComponent("MassiveComponent") && !entityHit.HasComponent("MassiveComponent") {
+			entityHit.AddComponent(&component.DeadComponent{})
+		}
 	}
 	return true
 }

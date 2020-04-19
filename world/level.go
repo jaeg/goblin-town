@@ -124,6 +124,14 @@ func NewOverworldSection(width int, height int) (level *Level) {
 		level.createCluster(x, y, 10, 176, 80, false, false)
 	}
 
+	//Generate tree formations
+	for i := 0; i < 50; i++ {
+		x := getRandom(1, width)
+		y := getRandom(1, height)
+
+		level.CreateClusterOfTrees(x, y, 10)
+	}
+
 	//Generate ponds
 	for i := 0; i < 10; i++ {
 		x := getRandom(1, width)
@@ -375,6 +383,48 @@ func (level *Level) createCluster(x int, y int, size int, spriteX int32, spriteY
 				tile.Type = 1
 			}
 
+		}
+	}
+}
+
+func (level *Level) CreateClusterOfTrees(x int, y int, size int) {
+	for i := 0; i < size; i++ {
+		n := getRandom(1, 6)
+		e := getRandom(1, 6)
+		s := getRandom(1, 6)
+		w := getRandom(1, 6)
+
+		if n == 1 {
+			x += 1
+		}
+
+		if s == 1 {
+			x--
+		}
+
+		if e == 1 {
+			y++
+		}
+
+		if w == 1 {
+			y--
+		}
+
+		tries := 0
+		if level.GetTileAt(x, y) != nil {
+			tile := level.GetTileAt(x, y)
+			if tile.Type != 2 && tile.Type != 4 && level.GetEntityAt(x, y) == nil {
+				tree, err := entity.Create("tree", x, y)
+				if err == nil {
+					level.AddEntity(tree)
+				}
+			} else {
+				i--
+				tries++
+			}
+			if tries > 10 {
+				continue
+			}
 		}
 	}
 }

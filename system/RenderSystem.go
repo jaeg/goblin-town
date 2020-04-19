@@ -322,19 +322,24 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 							dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 							dir = dc.Direction
 						}
-						if entity.HasComponent("DeadComponent") {
-							drawSpriteUpsideDown(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+
+						if entity.HasComponent("InanimateComponent") {
+							drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, worldTexture)
 						} else {
-							//Entity
-							drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY+(int32(Beat)*Sprite_Size_H), ac.R, ac.G, ac.B, characterTexture)
-							//Draw FX
-							if entity.HasComponent("AttackComponent") {
-								attackC := entity.GetComponent("AttackComponent").(*component.AttackComponent)
-								if attackC.Frame == 3 {
-									entity.RemoveComponent("AttackComponent")
-								} else {
-									drawSprite(tX, tY, int32(attackC.SpriteX)+(int32(attackC.Frame)*Sprite_Size_W), int32(attackC.SpriteY), 255, 255, 255, fxTexture)
-									attackC.Frame++
+							if entity.HasComponent("DeadComponent") {
+								drawSpriteUpsideDown(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+							} else {
+								//Entity
+								drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY+(int32(Beat)*Sprite_Size_H), ac.R, ac.G, ac.B, characterTexture)
+								//Draw FX
+								if entity.HasComponent("AttackComponent") {
+									attackC := entity.GetComponent("AttackComponent").(*component.AttackComponent)
+									if attackC.Frame == 3 {
+										entity.RemoveComponent("AttackComponent")
+									} else {
+										drawSprite(tX, tY, int32(attackC.SpriteX)+(int32(attackC.Frame)*Sprite_Size_W), int32(attackC.SpriteY), 255, 255, 255, fxTexture)
+										attackC.Frame++
+									}
 								}
 							}
 						}
