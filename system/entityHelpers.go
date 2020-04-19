@@ -21,6 +21,9 @@ func hit(entity *entity.Entity, entityHit *entity.Entity) {
 			}
 		}
 
+		//Create visual of attack
+		entityHit.AddComponent(&component.AttackComponent{SpriteX: 192, SpriteY: 80})
+
 		// Trigger their defenses
 		if entityHit.HasComponent("DefensiveAIComponent") {
 			daic := entityHit.GetComponent("DefensiveAIComponent").(*component.DefensiveAIComponent)

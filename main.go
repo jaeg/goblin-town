@@ -59,10 +59,18 @@ func main() {
 	ticks := 0
 	for _ = range ticker.C {
 		ticks++
-		if ticks >= 30 {
+		if ticks >= 120 {
 			level.NextHour()
 			fmt.Println("The hour is now:", level.Hour)
 			ticks = 0
+		}
+
+		if ticks%30 == 0 {
+			if system.Beat == 1 {
+				system.Beat = 0
+			} else {
+				system.Beat = 1
+			}
 		}
 		//start := time.Now()
 		system.InputSystem()

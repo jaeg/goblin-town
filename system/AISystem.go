@@ -52,7 +52,7 @@ func (s AISystem) Update(level *world.Level, entity *entity.Entity) *world.Level
 						if entity.HasComponent("DescriptionComponent") {
 							if nearby[e].HasComponent("DescriptionComponent") {
 								myDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-								hitDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+								hitDC := nearby[e].GetComponent("DescriptionComponent").(*component.DescriptionComponent)
 
 								if myDC.Faction != "none" && myDC.Faction != "" {
 									if myDC.Faction == hitDC.Faction {

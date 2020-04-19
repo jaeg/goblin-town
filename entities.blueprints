@@ -1,14 +1,14 @@
 goblin
 DescriptionComponent:<GoblinName>,goblin
 HealthComponent:10
-AppearanceComponent:0,112,255,255,255
+AppearanceComponent:0,96,255,255,255
 SolidComponent:
 GoblinAIComponent:
 InitiativeComponent:30,1
 
 rat
 DescriptionComponent:Rat
-AppearanceComponent:64,272,255,255,255
+AppearanceComponent:64,256,255,255,255
 HealthComponent:1
 SolidComponent:
 FoodComponent:10
@@ -50,7 +50,7 @@ InitiativeComponent:20,1
 
 snake
 DescriptionComponent:Snake
-AppearanceComponent:192,240,255,255,255
+AppearanceComponent:192,224,255,255,255
 HealthComponent:5
 DamageComponent:2
 SolidComponent:
@@ -61,7 +61,7 @@ InitiativeComponent:60,1
 PoisonousComponent:60
 
 centaur
-DescriptionComponent:Centaur
+DescriptionComponent:Centaur,centaur
 AppearanceComponent:128,352,255,255,255
 HealthComponent:5
 DamageComponent:2
