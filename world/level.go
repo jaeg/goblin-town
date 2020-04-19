@@ -15,7 +15,7 @@ import (
 const (
 	alpha = 6.
 	beta  = 5.
-	n     = 10
+	n     = 2
 )
 
 // Level .
@@ -26,6 +26,7 @@ type Level struct {
 	id                    int
 	left, right, up, down int
 	theme                 string
+	Hour                  int
 }
 
 //Tile Types
@@ -45,7 +46,7 @@ type Tile struct {
 }
 
 func newLevel(width int, height int) (level *Level) {
-	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height}
+	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height, Hour: 7}
 
 	data := make([][]Tile, width, height)
 	for x := 0; x < width; x++ {
@@ -308,6 +309,13 @@ func (level *Level) GetInteractableEntityAt(x int, y int) (entity *entity.Entity
 	}
 	entity = nil
 	return
+}
+
+func (level *Level) NextHour() {
+	level.Hour++
+	if level.Hour >= 24 {
+		level.Hour = 0
+	}
 }
 
 func (level *Level) AddEntity(entity *entity.Entity) {

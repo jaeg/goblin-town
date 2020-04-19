@@ -116,8 +116,14 @@ func main() {
 	// Input system
 	system.InputSystemInit()
 	ticker := time.NewTicker(time.Second / 32)
-
+	ticks := 0
 	for _ = range ticker.C {
+		ticks++
+		if ticks >= 60 {
+			level.NextHour()
+			fmt.Println("The hour is now:", level.Hour)
+			ticks = 0
+		}
 		//start := time.Now()
 		system.InputSystem()
 
