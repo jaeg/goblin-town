@@ -48,12 +48,28 @@ func (s AISystem) Update(level *world.Level, entity *entity.Entity) *world.Level
 				hunting := false
 				for e := range nearby {
 					if nearby[e] != entity {
-						if (nearby[e].HasComponent("FoodComponent") || nearby[e].HasComponent("GoblinAIComponent")) && !nearby[e].HasComponent("DeadComponent") {
-							foodPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
-							hc.TargetX = foodPC.GetX()
-							hc.TargetY = foodPC.GetY()
-							hunting = true
-							break
+						friendly := false
+						if entity.HasComponent("DescriptionComponent") {
+							if nearby[e].HasComponent("DescriptionComponent") {
+								myDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+								hitDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+
+								if myDC.Faction != "none" && myDC.Faction != "" {
+									if myDC.Faction == hitDC.Faction {
+										friendly = true
+									}
+								}
+
+							}
+						}
+						if !friendly {
+							if (nearby[e].HasComponent("FoodComponent") || nearby[e].HasComponent("GoblinAIComponent")) && !nearby[e].HasComponent("DeadComponent") {
+								foodPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
+								hc.TargetX = foodPC.GetX()
+								hc.TargetY = foodPC.GetY()
+								hunting = true
+								break
+							}
 						}
 					}
 				}

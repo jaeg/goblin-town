@@ -2,7 +2,8 @@ package component
 
 // DescriptionComponent .
 type DescriptionComponent struct {
-	Name string
+	Name    string
+	Faction string
 }
 
 func (pc DescriptionComponent) GetType() string {
