@@ -27,20 +27,19 @@ func main() {
 	elapsed := time.Since(start)
 	log.Printf("Generating the world took %s", elapsed)
 
-	//Random population of goblins
-	for i := 0; i < STARTING_GOBLIN_CLUSTERS; i++ {
-		x := rand.Intn(WIDTH)
-		y := rand.Intn(HEIGHT)
-		tile := level.GetTileAt(x, y)
-		fmt.Println(tile, x, y)
-		for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
-			x = rand.Intn(WIDTH)
-			y = rand.Intn(HEIGHT)
-			tile = level.GetTileAt(x, y)
-		}
-		level.CreateClusterOfGoblins(x, y, STARTING_GOBLINS)
+	//Starting population of goblins
+	x := rand.Intn(WIDTH)
+	y := rand.Intn(HEIGHT)
+	tile := level.GetTileAt(x, y)
 
+	for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
+		x = rand.Intn(WIDTH)
+		y = rand.Intn(HEIGHT)
+		tile = level.GetTileAt(x, y)
 	}
+	level.CreateClusterOfGoblins(x, y, STARTING_GOBLINS)
+	system.CenterCamera(x, y, level)
+
 	fmt.Println("Placing food")
 	//Random food
 	for i := 0; i < 200; i++ {

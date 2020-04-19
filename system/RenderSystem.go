@@ -344,20 +344,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 				if Mouse.Clicked {
 					cursorY = 144
 					if Mouse.X > MiniMap_X && Mouse.X < MiniMap_X+200 && Mouse.Y > MiniMap_Y && Mouse.Y < MiniMap_Y+200 {
-						newCameraX := Mouse.X - MiniMap_X
-						newCameraY := Mouse.Y - MiniMap_Y
-						if newCameraX+viewWidth <= level.Width {
-							CameraX = newCameraX
-						} else {
-							CameraX = level.Width - viewWidth
-						}
-
-						if newCameraY+viewHeight <= level.Height {
-							CameraY = newCameraY
-						} else {
-							CameraY = level.Height - viewHeight
-						}
-
+						PlaceCamera(Mouse.X-MiniMap_X, Mouse.Y-MiniMap_Y, level)
 					}
 				}
 				if pX == tile.X && pY == tile.Y {
@@ -460,4 +447,41 @@ func CreateMiniMap(level *world.Level) {
 	}
 	image.Free()
 	surface.Free()
+}
+
+func PlaceCamera(x int, y int, level *world.Level) {
+	newCameraX := x
+	newCameraY := y
+	viewWidth := World_W / Tile_Size_W
+	viewHeight := World_H / Tile_Size_H
+	if newCameraX+viewWidth <= level.Width {
+		CameraX = newCameraX
+	} else {
+		CameraX = level.Width - viewWidth
+	}
+
+	if newCameraY+viewHeight <= level.Height {
+		CameraY = newCameraY
+	} else {
+		CameraY = level.Height - viewHeight
+	}
+}
+
+func CenterCamera(x int, y int, level *world.Level) {
+
+	viewWidth := World_W / Tile_Size_W
+	viewHeight := World_H / Tile_Size_H
+	newCameraX := x - viewWidth/2
+	newCameraY := y - viewHeight/2
+	if newCameraX+viewWidth <= level.Width {
+		CameraX = newCameraX
+	} else {
+		CameraX = level.Width - viewWidth
+	}
+
+	if newCameraY+viewHeight <= level.Height {
+		CameraY = newCameraY
+	} else {
+		CameraY = level.Height - viewHeight
+	}
 }
