@@ -49,7 +49,7 @@ func Create(name string, x int, y int) (*Entity, error) {
 	blueprint := blueprints[name]
 	if blueprint != nil {
 		entity := Entity{}
-
+		entity.Blueprint = name
 		pc := &component.PositionComponent{}
 		pc.SetPosition(x, y)
 		entity.AddComponent(pc)
@@ -73,6 +73,8 @@ func Create(name string, x int, y int) (*Entity, error) {
 				entity.AddComponent(&component.InitiativeComponent{DefaultValue: dv, Ticks: ticks})
 			case "SolidComponent":
 				entity.AddComponent(&component.SolidComponent{})
+			case "NocturnalComponent":
+				entity.AddComponent(&component.NocturnalComponent{})
 			case "InventoryComponent":
 				inv := &component.InventoryComponent{}
 				for _, item := range params {

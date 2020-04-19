@@ -46,7 +46,7 @@ type Tile struct {
 }
 
 func newLevel(width int, height int) (level *Level) {
-	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height, Hour: 0}
+	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height, Hour: 9}
 
 	data := make([][]Tile, width, height)
 	for x := 0; x < width; x++ {

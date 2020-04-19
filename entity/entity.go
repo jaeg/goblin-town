@@ -9,6 +9,7 @@ type Entity struct {
 	Components      map[string]component.Component
 	InteractingWith component.Component
 	Shown           bool
+	Blueprint       string
 }
 
 func (entity *Entity) AddComponent(c component.Component) {

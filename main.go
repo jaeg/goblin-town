@@ -27,68 +27,8 @@ func main() {
 	elapsed := time.Since(start)
 	log.Printf("Generating the world took %s", elapsed)
 
-	//Starting population of goblins
-	x := rand.Intn(WIDTH)
-	y := rand.Intn(HEIGHT)
-	tile := level.GetTileAt(x, y)
-
-	for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
-		x = rand.Intn(WIDTH)
-		y = rand.Intn(HEIGHT)
-		tile = level.GetTileAt(x, y)
-	}
-	level.CreateClusterOfGoblins(x, y, STARTING_GOBLINS)
-	system.CenterCamera(x, y, level)
-
-	fmt.Println("Placing food")
-	//Random food
-	for i := 0; i < 200; i++ {
-		x := rand.Intn(WIDTH)
-		y := rand.Intn(HEIGHT)
-		tile := level.GetTileAt(x, y)
-		tries := 0
-		for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
-			x = rand.Intn(WIDTH)
-			y = rand.Intn(HEIGHT)
-			tile = level.GetTileAt(x, y)
-			tries++
-			if tries > 10 {
-				break
-			}
-		}
-		if tries > 10 {
-			continue
-		}
-		food, err := entity.Create("rat", x, y)
-		if err == nil {
-			level.AddEntity(food)
-		}
-	}
-
-	fmt.Println("Placing snakes")
-	//Random snakes
-	for i := 0; i < 200; i++ {
-		x := rand.Intn(WIDTH)
-		y := rand.Intn(HEIGHT)
-		tile := level.GetTileAt(x, y)
-		tries := 0
-		for tile.Type == 2 || tile.Type == 4 || level.GetEntityAt(x, y) != nil {
-			x = rand.Intn(WIDTH)
-			y = rand.Intn(HEIGHT)
-			tile = level.GetTileAt(x, y)
-			tries++
-			if tries > 10 {
-				break
-			}
-		}
-		if tries > 10 {
-			continue
-		}
-		food, err := entity.Create("snake", x, y)
-		if err == nil {
-			level.AddEntity(food)
-		}
-	}
+	gm := &GameMaster{}
+	gm.Init(level)
 
 	systems := make([]system.System, 0)
 
@@ -126,6 +66,8 @@ func main() {
 		}
 		//start := time.Now()
 		system.InputSystem()
+
+		gm.Update()
 
 		for _, entity := range level.Entities {
 			for s := range systems {

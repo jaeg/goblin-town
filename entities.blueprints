@@ -23,6 +23,16 @@ HealthComponent:5
 DamageComponent:2
 SolidComponent:
 FoodComponent:4
+NocturnalComponent:
+HostileAIComponent:
+InitiativeComponent:60,1
+
+dragon
+DescriptionComponent:Dragon
+AppearanceComponent:192,288,255,255,255
+HealthComponent:20
+DamageComponent:4
+SolidComponent:
 HostileAIComponent:
 InitiativeComponent:60,1
 

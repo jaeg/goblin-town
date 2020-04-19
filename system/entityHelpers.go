@@ -29,6 +29,10 @@ func hit(entity *entity.Entity, entityHit *entity.Entity) {
 			daic.AttackerX = pc.GetX()
 			daic.AttackerY = pc.GetY()
 		}
+
+		if !entityHit.HasComponent("AlertedComponent") {
+			entityHit.AddComponent(&component.AlertedComponent{Duration: 120})
+		}
 	}
 }
 

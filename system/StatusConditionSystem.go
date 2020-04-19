@@ -9,7 +9,7 @@ import (
 type StatusConditionSystem struct {
 }
 
-var statusConditions = []string{"Poisoned"}
+var statusConditions = []string{"Poisoned", "Alerted"}
 
 // StatusConditionSystem .
 func (s StatusConditionSystem) Update(level *world.Level, entity *entity.Entity) *world.Level {
