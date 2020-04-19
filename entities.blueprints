@@ -13,6 +13,7 @@ HealthComponent:1
 SolidComponent:
 FoodComponent:10
 WanderAIComponent:
+NeverSleepComponent:
 DefensiveAIComponent:
 InitiativeComponent:60,1
 

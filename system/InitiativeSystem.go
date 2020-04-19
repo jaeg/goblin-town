@@ -41,6 +41,11 @@ func (s InitiativeSystem) Update(level *world.Level, entity *entity.Entity) *wor
 					canGo = true
 				}
 
+				//Never sleeps
+				if entity.HasComponent("NeverSleepComponent") {
+					canGo = true
+				}
+
 				if canGo {
 					mTC := &component.MyTurnComponent{}
 					entity.AddComponent(mTC)

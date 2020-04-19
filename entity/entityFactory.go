@@ -75,6 +75,8 @@ func Create(name string, x int, y int) (*Entity, error) {
 				entity.AddComponent(&component.SolidComponent{})
 			case "NocturnalComponent":
 				entity.AddComponent(&component.NocturnalComponent{})
+			case "NeverSleepComponent":
+				entity.AddComponent(&component.NeverSleepComponent{})
 			case "InventoryComponent":
 				inv := &component.InventoryComponent{}
 				for _, item := range params {
