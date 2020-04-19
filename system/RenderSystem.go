@@ -21,8 +21,10 @@ const Window_W = 992
 const Window_H = 576
 const World_W = 800
 const World_H = 576
-const MiniMap_X = World_W
+const MiniMap_X = World_W + 6
 const MiniMap_Y = 200
+const MiniMap_W = 180
+const MiniMap_H = 180
 
 type RenderSystem struct {
 }
@@ -251,10 +253,15 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 	} else {
 		_, _, w, h, _ := miniMapTexture.Query()
 		src := sdl.Rect{X: 0, Y: 0, W: w, H: h}
-		dst := sdl.Rect{X: MiniMap_X, Y: MiniMap_Y, W: 200, H: 200}
+		dst := sdl.Rect{X: MiniMap_X, Y: MiniMap_Y, W: MiniMap_W, H: MiniMap_H}
 		renderer.Copy(miniMapTexture, &src, &dst)
 
-		renderer.DrawRect(&sdl.Rect{X: int32(MiniMap_X + CameraX), Y: int32(MiniMap_Y + CameraY), W: int32(len(view)), H: int32(len(view[0]))})
+		scale := float64(MiniMap_W) / float64(level.Width)
+
+		scaledX := MiniMap_X + float64(CameraX)*scale
+		scaledY := MiniMap_Y + float64(CameraY)*scale
+
+		renderer.DrawRect(&sdl.Rect{X: int32(scaledX), Y: int32(scaledY), W: int32(float64(len(view)) * scale), H: int32(float64(len(view[0])) * scale)})
 	}
 
 	//Draw world
@@ -343,8 +350,13 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 				cursorY = 128
 				if Mouse.Clicked {
 					cursorY = 144
-					if Mouse.X > MiniMap_X && Mouse.X < MiniMap_X+200 && Mouse.Y > MiniMap_Y && Mouse.Y < MiniMap_Y+200 {
-						PlaceCamera(Mouse.X-MiniMap_X, Mouse.Y-MiniMap_Y, level)
+					if Mouse.X > MiniMap_X && Mouse.X < MiniMap_X+MiniMap_W && Mouse.Y > MiniMap_Y && Mouse.Y < MiniMap_Y+MiniMap_H {
+						scale := float64(MiniMap_W) / float64(level.Width)
+						scaledX := int(float64(Mouse.X-MiniMap_X) / scale)
+						scaledY := int(float64(Mouse.Y-MiniMap_Y) / scale)
+						PlaceCamera(int(scaledX), int(scaledY), level)
+
+						PlaceCamera(scaledX, scaledY, level)
 					}
 				}
 				if pX == tile.X && pY == tile.Y {
