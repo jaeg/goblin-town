@@ -9,13 +9,14 @@ import (
 )
 
 const FOOD_MINIMUM = 100
-const HOSTILE_MINIMUM = 10
+const HOSTILE_MINIMUM = 40
 const FOOD_INITIAL = 200
 const HOSTILE_INITIAL = 200
 
-var HOSTILES = []string{"snake", "skeleton", "spider", "zombie", "centaur"}
+var HOSTILES = []string{"snake", "skeleton", "spider", "zombie"}
+var RARE_HOSTILES = []string{"giant", "centaur"}
 
-var FOOD = []string{"rat", "dog", "cat", "roach", "snake"}
+var FOOD = []string{"rat", "dog", "cat", "roach"}
 
 type GameMaster struct {
 	level *world.Level
@@ -62,8 +63,8 @@ func (gm *GameMaster) Init(level *world.Level) {
 		}
 	}
 
-	fmt.Println("Placing snakes")
-	//Random snakes
+	fmt.Println("Placing hostiles")
+	//Random hostiles
 	for i := 0; i < HOSTILE_INITIAL; i++ {
 		x := rand.Intn(WIDTH)
 		y := rand.Intn(HEIGHT)
@@ -82,6 +83,10 @@ func (gm *GameMaster) Init(level *world.Level) {
 			continue
 		}
 		blueprint := HOSTILES[getRandom(0, len(HOSTILES))]
+		if getRandom(0, 100) == 0 {
+			fmt.Println("Spawn a rare hostile enemy!")
+			blueprint = RARE_HOSTILES[getRandom(0, len(RARE_HOSTILES))]
+		}
 		food, err := entity.Create(blueprint, x, y)
 		if err == nil {
 			level.AddEntity(food)
@@ -128,7 +133,8 @@ func (gm *GameMaster) Update() {
 			if tries > 10 {
 				continue
 			}
-			food, err := entity.Create("rat", x, y)
+			blueprint := FOOD[getRandom(0, len(FOOD))]
+			food, err := entity.Create(blueprint, x, y)
 			if err == nil {
 				gm.level.AddEntity(food)
 			}
@@ -155,7 +161,13 @@ func (gm *GameMaster) Update() {
 			if tries > 10 {
 				continue
 			}
+
 			blueprint := HOSTILES[getRandom(0, len(HOSTILES))]
+
+			if getRandom(0, 500) == 0 {
+				fmt.Println("Spawn a rare hostile enemy!")
+				blueprint = RARE_HOSTILES[getRandom(0, len(RARE_HOSTILES))]
+			}
 			food, err := entity.Create(blueprint, x, y)
 			if err == nil {
 				gm.level.AddEntity(food)

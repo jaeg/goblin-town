@@ -114,8 +114,18 @@ HealthComponent:20
 DamageComponent:4
 NocturnalComponent:
 SolidComponent:
+HostileAIComponent:20
+InitiativeComponent:30,1
+MassiveComponent:
+
+giant
+DescriptionComponent:Giant
+AppearanceComponent:0,480,255,255,255
+HealthComponent:15
+DamageComponent:3
+SolidComponent:
 HostileAIComponent:10
-InitiativeComponent:60,1
+InitiativeComponent:90,1
 MassiveComponent:
 
 food
