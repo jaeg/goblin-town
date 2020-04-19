@@ -119,7 +119,7 @@ func main() {
 	ticks := 0
 	for _ = range ticker.C {
 		ticks++
-		if ticks >= 60 {
+		if ticks >= 30 {
 			level.NextHour()
 			fmt.Println("The hour is now:", level.Hour)
 			ticks = 0

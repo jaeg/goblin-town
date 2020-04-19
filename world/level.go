@@ -46,7 +46,7 @@ type Tile struct {
 }
 
 func newLevel(width int, height int) (level *Level) {
-	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height, Hour: 7}
+	level = &Level{left: -1, right: -1, up: -1, down: -1, Width: width, Height: height, Hour: 0}
 
 	data := make([][]Tile, width, height)
 	for x := 0; x < width; x++ {
@@ -124,41 +124,30 @@ func NewOverworldSection(width int, height int) (level *Level) {
 		level.createCluster(x, y, 10, 176, 80, false, false)
 	}
 
-	/*
-		for x := 0; x < width; x++ {
-			for y := 0; y < height; y++ {
-				if rand.Intn(5) == 0 {
-					level.GetTileAt(x, y).SpriteX = 144
-				} else if rand.Intn(50) == 0 {
-					level.GetTileAt(x, y).SpriteX = 192
-				}
-			}
-		}
+	//Generate ponds
+	for i := 0; i < 10; i++ {
+		x := getRandom(1, width)
+		y := getRandom(1, height)
 
-		//Generate flower formations
-		for i := 0; i < 50; i++ {
-			x := getRandom(1, width)
-			y := getRandom(1, height)
+		level.createCluster(x, y, getRandom(20, 300), 16, 128, false, true)
+	}
 
-			level.createCluster(x, y, 10, 176, 80, false, false)
-		}
+	// //Generate Mountains
+	// for i := 0; i < 3; i++ {
+	// 	x := getRandom(1, width)
+	// 	y := getRandom(1, height)
+	// 	rn := getRandom(0, 4)
+	// 	sX := 0
+	// 	if rn == 1 {
+	// 		sX = 16
+	// 	} else if rn == 2 {
+	// 		sX = 32
+	// 	} else if rn == 3 {
+	// 		sX = 48
+	// 	}
+	// 	level.createCluster(x, y, 2000, int32(sX), 80, true, false)
+	// }
 
-		//Generate Water
-		for i := 0; i < 1000; i++ {
-			x := getRandom(1, width)
-			y := getRandom(1, height)
-
-			level.createCluster(x, y, getRandom(20, 300), 16, 128, false, true)
-		}
-
-		//Generate Mountains
-		for i := 0; i < 3; i++ {
-			x := getRandom(1, width)
-			y := getRandom(1, height)
-
-			level.createCluster(x, y, 2000, 0, 80, true, false)
-		}
-	*/
 	return
 }
 

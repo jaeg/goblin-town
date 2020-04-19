@@ -359,13 +359,26 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 	}
 
 	//Render the day/night
-	//Dawn
-	if level.Hour > 5 && level.Hour < 8 {
-		renderer.SetDrawColor(0, 0, 0, 90)
+
+	/*
+		Get's brighter between 5am and 8am.
+		Get's darker between 7pm and 9pm.
+		Stays dark between 9pm and 5am.
+	*/
+	//Dawn - Get's brighter between 5am and 8am.
+	if level.Hour >= 5 && level.Hour < 8 {
+		alpha := 125 - 10*level.Hour
+		renderer.SetDrawColor(0, 0, 0, uint8(alpha))
 		renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
 		renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
 		renderer.SetDrawColor(255, 255, 255, 255)
-	} else if level.Hour > 19 || (level.Hour >= 0 && level.Hour <= 5) {
+	} else if level.Hour > 17 && level.Hour <= 21 { //Dusk - Get's darker between 7pm and 9pm.
+		alpha := 0 + 25*(level.Hour-16)
+		renderer.SetDrawColor(0, 0, 0, uint8(alpha))
+		renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+		renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
+		renderer.SetDrawColor(255, 255, 255, 255)
+	} else if level.Hour > 21 || (level.Hour >= 0 && level.Hour < 5) {
 		renderer.SetDrawColor(0, 0, 0, 125)
 		renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
 		renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
