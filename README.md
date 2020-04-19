@@ -1,5 +1,16 @@
 # goblin-town
 
+# Description
+Every evil overlord has to start somewhere, and it looks like you have to start with goblins..
+Goblins are selfish creatures that will look out for themselves first.  This creates come challenges when trying to rule over them.
+
+# Controls
+
+1,2,3,4 - Zoom.  3 and 4 are kinda iffy.
+W,A,S,D - moves camera around.
+Clicking on something on the map will show some information about it.
+Clicking on the mini map will move the camera to that location.
+
 
 # Goblin AI
 Goblins can survive on their own and follow a basic set of rules to attempt to do so.
