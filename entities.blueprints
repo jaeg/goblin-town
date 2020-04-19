@@ -33,6 +33,7 @@ DescriptionComponent:Dragon
 AppearanceComponent:192,288,255,255,255
 HealthComponent:20
 DamageComponent:4
+NocturnalComponent:
 SolidComponent:
 HostileAIComponent:
 InitiativeComponent:60,1
