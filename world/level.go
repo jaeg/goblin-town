@@ -15,7 +15,7 @@ import (
 const (
 	alpha = 6.
 	beta  = 5.
-	n     = 5
+	n     = 10
 )
 
 // Level .
@@ -70,26 +70,59 @@ func NewOverworldSection(width int, height int) (level *Level) {
 			tile := level.GetTileAt(x, y)
 			value := int(p.Noise2D(float64(x)/100, float64(y)/100) * 10)
 			tile.Elevation = value
-			if value == -1 {
+
+			//Beach
+			if value == -2 {
 				tile.Type = 1
-				tile.SpriteX = 176
-				tile.SpriteY = 80
+				tile.SpriteX = 112
+				tile.SpriteY = 112
+				rn := getRandom(0, 4)
+				if rn == 1 {
+					tile.SpriteX = 128
+				} else if rn == 2 {
+					tile.SpriteX = 144
+				} else if rn == 3 {
+					tile.SpriteX = 160
+				}
 			}
 
 			//grass
-			if value > -1 {
+			if value > -2 {
+
 				tile.Type = 1
 				tile.SpriteX = 128
 				tile.SpriteY = 80
+				if getRandom(0, 3) == 2 {
+					tile.SpriteX = 144
+				}
+
 			}
 
+			//Mountain
 			if value >= 2 {
-				tile.Type = 1
+
+				tile.Type = 2
 				tile.SpriteX = 0
 				tile.SpriteY = 80
+				rn := getRandom(0, 4)
+				if rn == 1 {
+					tile.SpriteX = 16
+				} else if rn == 2 {
+					tile.SpriteX = 32
+				} else if rn == 3 {
+					tile.SpriteX = 48
+				}
 			}
 		}
 	}
+	//Generate flower formations
+	for i := 0; i < 50; i++ {
+		x := getRandom(1, width)
+		y := getRandom(1, height)
+
+		level.createCluster(x, y, 10, 176, 80, false, false)
+	}
+
 	/*
 		for x := 0; x < width; x++ {
 			for y := 0; y < height; y++ {

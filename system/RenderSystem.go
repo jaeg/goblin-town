@@ -21,7 +21,7 @@ const Window_W = 992
 const Window_H = 576
 const World_W = 800
 const World_H = 576
-const MiniMap_X = World_W + 1
+const MiniMap_X = World_W
 const MiniMap_Y = 200
 
 type RenderSystem struct {
@@ -217,26 +217,29 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false, false)
 
 	renderer.Clear()
+	renderer.SetDrawColor(255, 255, 255, 255)
+	renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
 
 	//Draw menu
 	for x := World_W; x < Window_W; x += 16 {
 		for y := 0; y < Window_H; y += 16 {
 			var sX int32
 			var sY int32
-			sX = 112
+			sX = 128
 			sY = 16
+			//Left Top
 			if x == World_W && y == 0 {
 				sY = 0
-				sX = 96
-			} else if x == Window_W-16 && y == 0 {
+				sX = 144
+			} else if x == Window_W-16 && y == 0 { //Right top
 				sY = 0
-				sX = 128
-			} else if x == 0 && y == Window_H {
-				sY = 24
-				sX = 96
-			} else if x == Window_W && y == Window_H {
-				sY = 24
-				sX = 128
+				sX = 176
+			} else if x == World_W && y == Window_H-16 { //Left bottom
+				sY = 0
+				sX = 144
+			} else if x == Window_W-16 && y == Window_H-16 { //Right bottom
+				sY = 0
+				sX = 144
 			}
 			drawSprite(int32(x), int32(y), sX, sY, 255, 255, 255, uiTexture)
 		}
@@ -261,11 +264,30 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 			tY := int32(y * Tile_Size_H)
 			tile := view[x][y]
 
-			drawSprite(tX, tY, tile.SpriteX, tile.SpriteY, 255, 255, 255, worldTexture) //Tile itself
-
 			if tile == nil {
 				drawSprite(tX, tY, 0, 112, 255, 255, 255, worldTexture) //Empty space
 			} else {
+				//For tiles we want the higher tiles to appear whiter to convey depth.  The background is white
+				//so changing the alpha does this for us.
+				alpha := 255
+				if tile.Elevation > 0 {
+					alpha = 255 - tile.Elevation*4
+					// It doesn't make sense to start off by fading out the bottom of the mountain.
+					if tile.Elevation == 2 {
+						alpha = 255
+					}
+					if alpha > 255 {
+						alpha = 255
+					}
+				}
+
+				depth := 255
+				if tile.Elevation < 0 {
+					depth = 255 + tile.Elevation*20
+				}
+
+				drawSpriteEx(tX, tY, tile.SpriteX, tile.SpriteY, uint8(depth), uint8(depth), uint8(depth), uint8(alpha), worldTexture) //Tile itself
+
 				//Draw entity on tile.
 				entity := level.GetEntityAt(tile.X, tile.Y)
 				if entity != nil {
@@ -321,6 +343,22 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 				cursorY = 128
 				if Mouse.Clicked {
 					cursorY = 144
+					if Mouse.X > MiniMap_X && Mouse.X < MiniMap_X+200 && Mouse.Y > MiniMap_Y && Mouse.Y < MiniMap_Y+200 {
+						newCameraX := Mouse.X - MiniMap_X
+						newCameraY := Mouse.Y - MiniMap_Y
+						if newCameraX+viewWidth <= level.Width {
+							CameraX = newCameraX
+						} else {
+							CameraX = level.Width - viewWidth
+						}
+
+						if newCameraY+viewHeight <= level.Height {
+							CameraY = newCameraY
+						} else {
+							CameraY = level.Height - viewHeight
+						}
+
+					}
 				}
 				if pX == tile.X && pY == tile.Y {
 					drawSprite(tX, tY, 128, cursorY, 255, 255, 255, uiTexture) //Cursor?
@@ -340,6 +378,16 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 
 func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
 	texture.SetColorMod(r, g, b)
+	texture.SetAlphaMod(255)
+	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
+	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
+	renderer.Copy(texture, &src, &dst)
+
+}
+
+func drawSpriteEx(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, a uint8, texture *sdl.Texture) {
+	texture.SetColorMod(r, g, b)
+	texture.SetAlphaMod(a)
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
 	renderer.Copy(texture, &src, &dst)
