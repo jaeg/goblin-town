@@ -8,12 +8,14 @@ import (
 	"math/rand"
 )
 
-const FOOD_MINIMUM = 40
-const HOSTILE_MINIMUM = 40
+const FOOD_MINIMUM = 100
+const HOSTILE_MINIMUM = 10
 const FOOD_INITIAL = 200
 const HOSTILE_INITIAL = 200
 
-var HOSTILES = []string{"snake", "skeleton", "spider"}
+var HOSTILES = []string{"snake", "skeleton", "spider", "zombie", "centaur"}
+
+var FOOD = []string{"rat", "dog", "cat", "roach", "snake"}
 
 type GameMaster struct {
 	level *world.Level
@@ -53,7 +55,8 @@ func (gm *GameMaster) Init(level *world.Level) {
 		if tries > 10 {
 			continue
 		}
-		food, err := entity.Create("rat", x, y)
+		blueprint := FOOD[getRandom(0, len(FOOD))]
+		food, err := entity.Create(blueprint, x, y)
 		if err == nil {
 			level.AddEntity(food)
 		}
