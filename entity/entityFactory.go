@@ -105,6 +105,9 @@ func Create(name string, x int, y int) (*Entity, error) {
 			case "DamageComponent":
 				amount, _ := strconv.Atoi(params[0])
 				entity.AddComponent(&component.DamageComponent{Amount: amount})
+			case "PoisonousComponent":
+				amount, _ := strconv.Atoi(params[0])
+				entity.AddComponent(&component.PoisonousComponent{Duration: amount})
 			case "DefensiveAIComponent":
 				entity.AddComponent(&component.DefensiveAIComponent{})
 			case "DescriptionComponent":

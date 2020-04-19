@@ -33,6 +33,13 @@ func hit(entity *entity.Entity, entityHit *entity.Entity) {
 		if !entityHit.HasComponent("AlertedComponent") {
 			entityHit.AddComponent(&component.AlertedComponent{Duration: 120})
 		}
+
+		if entity.HasComponent("PoisonousComponent") {
+			if !entityHit.HasComponent("PoisonedComponent") {
+				poisonousComponent := entity.GetComponent("PoisonousComponent").(*component.PoisonousComponent)
+				entityHit.AddComponent(&component.PoisonedComponent{Duration: poisonousComponent.Duration})
+			}
+		}
 	}
 }
 

@@ -28,6 +28,27 @@ NocturnalComponent:
 HostileAIComponent:
 InitiativeComponent:60,1
 
+skeleton
+DescriptionComponent:Skeleton
+AppearanceComponent:0,128,255,255,255
+HealthComponent:2
+DamageComponent:1
+SolidComponent:
+NeverSleepComponent:
+HostileAIComponent:
+InitiativeComponent:60,1
+
+spider
+DescriptionComponent:Spider
+AppearanceComponent:0,256,255,255,255
+HealthComponent:1
+DamageComponent:1
+SolidComponent:
+NeverSleepComponent:
+HostileAIComponent:
+InitiativeComponent:30,1
+PoisonousComponent:60
+
 dragon
 DescriptionComponent:Dragon
 AppearanceComponent:192,288,255,255,255

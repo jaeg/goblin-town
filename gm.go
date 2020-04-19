@@ -13,6 +13,8 @@ const HOSTILE_MINIMUM = 40
 const FOOD_INITIAL = 200
 const HOSTILE_INITIAL = 200
 
+var HOSTILES = []string{"snake", "skeleton", "spider"}
+
 type GameMaster struct {
 	level *world.Level
 }
@@ -76,7 +78,8 @@ func (gm *GameMaster) Init(level *world.Level) {
 		if tries > 10 {
 			continue
 		}
-		food, err := entity.Create("snake", x, y)
+		blueprint := HOSTILES[getRandom(0, len(HOSTILES))]
+		food, err := entity.Create(blueprint, x, y)
 		if err == nil {
 			level.AddEntity(food)
 		}
@@ -149,7 +152,8 @@ func (gm *GameMaster) Update() {
 			if tries > 10 {
 				continue
 			}
-			food, err := entity.Create("snake", x, y)
+			blueprint := HOSTILES[getRandom(0, len(HOSTILES))]
+			food, err := entity.Create(blueprint, x, y)
 			if err == nil {
 				gm.level.AddEntity(food)
 			}
