@@ -279,8 +279,16 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 
 		scaledX := MiniMap_X + float64(CameraX)*scale
 		scaledY := MiniMap_Y + float64(CameraY)*scale
-
+		//Box
 		renderer.DrawRect(&sdl.Rect{X: int32(scaledX), Y: int32(scaledY), W: int32(float64(len(view)) * scale), H: int32(float64(len(view[0])) * scale)})
+
+		//Torch
+		scaledX = MiniMap_X + float64(GoblinTorch_X)*scale
+		scaledY = MiniMap_Y + float64(GoblinTorch_Y)*scale
+		renderer.SetDrawColor(255, 0, 0, 255)
+		renderer.DrawRect(&sdl.Rect{X: int32(scaledX - 2), Y: int32(scaledY - 2), W: 4, H: 4})
+		renderer.SetDrawColor(255, 255, 255, 255)
+
 	}
 
 	//Draw world
@@ -312,7 +320,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 					depth = 255 + tile.Elevation*20
 				}
 
-				drawSpriteEx(tX, tY, tile.SpriteX, tile.SpriteY, uint8(depth), uint8(depth), uint8(depth), uint8(alpha), worldTexture) //Tile itself
+				drawSpriteEx(tX, tY, tile.SpriteX, tile.SpriteY, int32(Tile_Size_W), int32(Tile_Size_H), uint8(depth), uint8(depth), uint8(depth), uint8(alpha), worldTexture) //Tile itself
 
 				//Draw entity on tile.
 				entity := level.GetEntityAt(tile.X, tile.Y)
@@ -387,6 +395,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 					drawSprite(tX, tY, 80+int32(Sprite_Size_W*Beat), 192, 255, 255, 255, worldTexture)
 				}
 
+				//Cursor stuff
 				var cursorY int32
 				cursorY = 128
 				if Mouse.Clicked {
@@ -452,11 +461,11 @@ func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8,
 
 }
 
-func drawSpriteEx(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, a uint8, texture *sdl.Texture) {
+func drawSpriteEx(x int32, y int32, sx int32, sy int32, w int32, h int32, r uint8, g uint8, b uint8, a uint8, texture *sdl.Texture) {
 	texture.SetColorMod(r, g, b)
 	texture.SetAlphaMod(a)
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
-	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
+	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
 	renderer.Copy(texture, &src, &dst)
 
 }
