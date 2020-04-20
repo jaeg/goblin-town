@@ -7,16 +7,16 @@ import (
 	"goblin-town/world"
 )
 
+// GoblinAISystem Manages the goblin's ai in the simulation
 type GoblinAISystem struct {
 }
 
-// GoblinAISystem .
+// Update Main update function of the system.
 func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world.Level {
 	if entity.HasComponent("GoblinAIComponent") {
 		if entity.HasComponent("MyTurnComponent") {
 			aic := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
 			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
-			dc := entity.GetComponent("DirectionComponent").(*component.DirectionComponent)
 
 			deltaX := 0
 			deltaY := 0
@@ -80,7 +80,7 @@ func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world
 							}
 						}
 					}
-
+					//Make a new goblin
 					if emptyX != -1 && emptyY != -1 && goblinsNearby >= aic.MateThreshold && aic.Energy > aic.HungerThreshold {
 						goblin, err := entityFactory.Create("goblin", emptyX, emptyY)
 						newAic := goblin.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
@@ -94,14 +94,21 @@ func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world
 				}
 			case "findfriends":
 				nearby := level.GetEntitiesAround(pc.GetX(), pc.GetY(), aic.SightRange, aic.SightRange)
-
-				for e := range nearby {
-					if nearby[e].HasComponent("GoblinAIComponent") && !nearby[e].HasComponent("DeadComponent") {
-						goblinPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
-						aic.TargetX = goblinPC.GetX()
-						aic.TargetY = goblinPC.GetY()
-						aic.State = "approach"
-						break
+				// If goblins don't have anyone nearby to go to, head to the torch for saftey.
+				if len(nearby) < 2 {
+					aic.TargetX = GoblinTorch_X
+					aic.TargetY = GoblinTorch_Y
+					aic.State = "approach"
+				} else {
+					// Find a nearby goblin and head towards it.
+					for e := range nearby {
+						if nearby[e].HasComponent("GoblinAIComponent") && !nearby[e].HasComponent("DeadComponent") {
+							goblinPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
+							aic.TargetX = goblinPC.GetX()
+							aic.TargetY = goblinPC.GetY()
+							aic.State = "approach"
+							break
+						}
 					}
 				}
 			case "approach":
@@ -149,61 +156,19 @@ func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world
 				}
 			}
 
-			//Get if we bumped into something
-			entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
-			if entityHit == nil {
-				tile := level.GetTileAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
-				if tile == nil {
-				} else if tile.Type != 2 && tile.Type != 4 {
-					level.PlaceEntity(pc.GetX()+deltaX, pc.GetY()+deltaY, entity)
-				}
-			} else {
-
-				//Is it food?
-				if entityHit.HasComponent("FoodComponent") && !entityHit.HasComponent("DeadComponent") {
-					canEat := false
-					if entityHit.HasComponent("HealthComponent") {
-						hc := entityHit.GetComponent("HealthComponent").(*component.HealthComponent)
-						//Gotta kill the food first.
-						if hc.Health > 0 {
-							if entityHit.HasComponent("DefensiveAIComponent") {
-								daic := entityHit.GetComponent("DefensiveAIComponent").(*component.DefensiveAIComponent)
-								daic.Attacked = true
-								daic.AttackerX = pc.GetX()
-								daic.AttackerY = pc.GetY()
-							}
-							hc.Health--
-						} else {
-							canEat = true
-						}
-					}
-
-					if canEat {
-						fc := entityHit.GetComponent("FoodComponent").(*component.FoodComponent)
-
-						if fc.Amount <= 0 {
-							entityHit.AddComponent(&component.DeadComponent{})
-						} else {
-							fc.Amount--
+			//Move
+			if move(entity, level, deltaX, deltaY) {
+				entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
+				if entityHit != nil {
+					if entityHit != entity && entityHit.Blueprint != "goblin" {
+						hit(entity, entityHit)
+						if eat(entity, entityHit) {
 							aic.Energy += 2
 						}
 					}
 				}
 			}
-
-			//Change direction we are facing based on movement
-			if deltaY > 0 {
-				dc.Direction = 1
-			}
-			if deltaY < 0 {
-				dc.Direction = 2
-			}
-			if deltaX < 0 {
-				dc.Direction = 3
-			}
-			if deltaX > 0 {
-				dc.Direction = 0
-			}
+			face(entity, deltaX, deltaY)
 
 			//Every thing we just did costed energy.
 			aic.Energy--

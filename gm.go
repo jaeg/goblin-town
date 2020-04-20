@@ -2,27 +2,30 @@ package main
 
 import (
 	"fmt"
+	"goblin-town/component"
 	"goblin-town/entity"
 	"goblin-town/system"
 	"goblin-town/world"
 	"math/rand"
 )
 
-const FOOD_MINIMUM = 100
-const HOSTILE_MINIMUM = 40
-const FOOD_INITIAL = 200
-const HOSTILE_INITIAL = 200
+const foodMinimum = 100
+const hostileMinimum = 40
+const foodInitial = 200
+const hostileInitial = 200
 
-var HOSTILES = []string{"snake", "skeleton", "spider", "zombie"}
-var RARE_HOSTILES = []string{"giant", "centaur", "griffon"}
-var EPIC_HOSTILES = []string{"darkknight"}
+var hostiles = []string{"snake", "skeleton", "spider", "zombie"}
+var rareHostiles = []string{"giant", "centaur", "griffon"}
+var epicHostiles = []string{"darkknight"}
 
-var FOOD = []string{"rat", "dog", "cat", "roach"}
+var foods = []string{"rat", "dog", "cat", "roach"}
 
+//GameMaster The Game master manages what's going on in the game world and balances the difficulty.
 type GameMaster struct {
 	level *world.Level
 }
 
+//Init Initial the game master
 func (gm *GameMaster) Init(level *world.Level) {
 	gm.level = level
 	//Starting population of goblins
@@ -40,7 +43,7 @@ func (gm *GameMaster) Init(level *world.Level) {
 
 	fmt.Println("Placing food")
 	//Random food
-	for i := 0; i < FOOD_INITIAL; i++ {
+	for i := 0; i < foodInitial; i++ {
 		x := rand.Intn(WIDTH)
 		y := rand.Intn(HEIGHT)
 		tile := level.GetTileAt(x, y)
@@ -57,7 +60,7 @@ func (gm *GameMaster) Init(level *world.Level) {
 		if tries > 10 {
 			continue
 		}
-		blueprint := FOOD[getRandom(0, len(FOOD))]
+		blueprint := foods[getRandom(0, len(foods))]
 		food, err := entity.Create(blueprint, x, y)
 		if err == nil {
 			level.AddEntity(food)
@@ -66,7 +69,7 @@ func (gm *GameMaster) Init(level *world.Level) {
 
 	fmt.Println("Placing hostiles")
 	//Random hostiles
-	for i := 0; i < HOSTILE_INITIAL; i++ {
+	for i := 0; i < hostileInitial; i++ {
 		x := rand.Intn(WIDTH)
 		y := rand.Intn(HEIGHT)
 		tile := level.GetTileAt(x, y)
@@ -83,10 +86,10 @@ func (gm *GameMaster) Init(level *world.Level) {
 		if tries > 10 {
 			continue
 		}
-		blueprint := HOSTILES[getRandom(0, len(HOSTILES))]
+		blueprint := hostiles[getRandom(0, len(hostiles))]
 		if getRandom(0, 100) == 0 {
 			fmt.Println("Spawn a rare hostile enemy!")
-			blueprint = RARE_HOSTILES[getRandom(0, len(RARE_HOSTILES))]
+			blueprint = rareHostiles[getRandom(0, len(rareHostiles))]
 		}
 		food, err := entity.Create(blueprint, x, y)
 		if err == nil {
@@ -95,10 +98,14 @@ func (gm *GameMaster) Init(level *world.Level) {
 	}
 }
 
+//Update Update the game master
 func (gm *GameMaster) Update() {
 	foodCount := 0
 	hostileCount := 0
 	dragonPresent := false
+	goblinCount := 0
+	goblinAverageX := 0
+	goblinAverageY := 0
 	//Gather stats
 	for _, e := range gm.level.Entities {
 		if e.HasComponent("FoodComponent") {
@@ -112,12 +119,27 @@ func (gm *GameMaster) Update() {
 		if e.Blueprint == "dragon" {
 			dragonPresent = true
 		}
+
+		if e.Blueprint == "goblin" {
+			goblinCount++
+			pc := e.GetComponent("PositionComponent").(*component.PositionComponent)
+			goblinAverageX += pc.GetX()
+			goblinAverageY += pc.GetY()
+		}
 	}
 
-	if foodCount < FOOD_MINIMUM {
+	if goblinCount > 0 {
+		goblinAverageX = goblinAverageX / goblinCount
+		goblinAverageY = goblinAverageY / goblinCount
+		system.GoblinTorch_X = goblinAverageX
+		system.GoblinTorch_Y = goblinAverageY
+	}
+
+	// Handle food count
+	if foodCount < foodMinimum {
 		fmt.Println("Below minimum number of food entities... Placing food")
 		//Random food
-		for i := 0; i < FOOD_MINIMUM-foodCount; i++ {
+		for i := 0; i < foodMinimum-foodCount; i++ {
 			x := rand.Intn(WIDTH)
 			y := rand.Intn(HEIGHT)
 			tile := gm.level.GetTileAt(x, y)
@@ -134,7 +156,7 @@ func (gm *GameMaster) Update() {
 			if tries > 10 {
 				continue
 			}
-			blueprint := FOOD[getRandom(0, len(FOOD))]
+			blueprint := foods[getRandom(0, len(foods))]
 			food, err := entity.Create(blueprint, x, y)
 			if err == nil {
 				gm.level.AddEntity(food)
@@ -142,10 +164,11 @@ func (gm *GameMaster) Update() {
 		}
 	}
 
-	if hostileCount < HOSTILE_INITIAL {
+	// Handle hostile count
+	if hostileCount < hostileMinimum {
 		fmt.Println("Below minimum number of hostile entities... Placing hostiles")
 		//Random snakes
-		for i := 0; i < HOSTILE_INITIAL-hostileCount; i++ {
+		for i := 0; i < hostileInitial-hostileCount; i++ {
 			x := rand.Intn(WIDTH)
 			y := rand.Intn(HEIGHT)
 			tile := gm.level.GetTileAt(x, y)
@@ -163,14 +186,14 @@ func (gm *GameMaster) Update() {
 				continue
 			}
 
-			blueprint := HOSTILES[getRandom(0, len(HOSTILES))]
+			blueprint := hostiles[getRandom(0, len(hostiles))]
 
 			if getRandom(0, 500) == 0 {
 				fmt.Println("Spawn a rare hostile enemy!")
-				blueprint = RARE_HOSTILES[getRandom(0, len(RARE_HOSTILES))]
+				blueprint = rareHostiles[getRandom(0, len(rareHostiles))]
 				if getRandom(0, 500) == 0 {
 					fmt.Println("!!Spawned an epic hostile enemy instead!!")
-					blueprint = EPIC_HOSTILES[getRandom(0, len(EPIC_HOSTILES))]
+					blueprint = epicHostiles[getRandom(0, len(epicHostiles))]
 				}
 			}
 			food, err := entity.Create(blueprint, x, y)
@@ -180,6 +203,7 @@ func (gm *GameMaster) Update() {
 		}
 	}
 
+	// DRAGONS!!
 	if dragonPresent == false {
 		if getRandom(0, 1000) == 0 {
 			fmt.Println("A dragon has flown in!")

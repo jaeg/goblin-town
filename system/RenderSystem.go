@@ -46,6 +46,8 @@ var Zoom = 1
 var releasedZoom = true
 
 var Beat = 0
+var GoblinTorch_X = 0
+var GoblinTorch_Y = 0
 
 func (s RenderSystem) Init() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
@@ -379,6 +381,12 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 					}
 				}
+
+				//Torch
+				if GoblinTorch_X == tile.X && GoblinTorch_Y == tile.Y {
+					drawSprite(tX, tY, 80+int32(Sprite_Size_W*Beat), 192, 255, 255, 255, worldTexture)
+				}
+
 				var cursorY int32
 				cursorY = 128
 				if Mouse.Clicked {
