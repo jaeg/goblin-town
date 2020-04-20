@@ -6,6 +6,8 @@ import (
 	"goblin-town/component"
 	"goblin-town/entity"
 	"goblin-town/world"
+
+	"github.com/beefsack/go-astar"
 )
 
 func getRandom(low int, high int) int {
@@ -75,20 +77,25 @@ func (s AISystem) Update(level *world.Level, entity *entity.Entity) *world.Level
 				}
 
 				if hunting {
-					if pc.GetX() < hc.TargetX {
-						deltaX = 1
-					}
+					steps, _, _ := astar.Path(level.GetTileAt(pc.GetX(), pc.GetY()), level.GetTileAt(hc.TargetX, hc.TargetY))
+					if len(steps) > 0 {
+						t := steps[0].(*world.Tile)
+						if pc.GetX() < t.X {
+							deltaX = 1
+						}
 
-					if pc.GetX() > hc.TargetX {
-						deltaX = -1
-					}
+						if pc.GetX() > t.X {
+							deltaX = -1
+						}
 
-					if pc.GetY() < hc.TargetY {
-						deltaY = 1
-					}
+						if pc.GetY() < t.Y {
+							deltaY = 1
+						}
 
-					if pc.GetY() > hc.TargetY {
-						deltaY = -1
+						if pc.GetY() > t.Y {
+							deltaY = -1
+						}
+
 					}
 				}
 

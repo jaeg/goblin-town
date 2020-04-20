@@ -10,6 +10,7 @@ import (
 	"goblin-town/entity"
 
 	"github.com/aquilax/go-perlin"
+	"github.com/beefsack/go-astar"
 )
 
 const (
@@ -42,7 +43,32 @@ type Tile struct {
 	X         int
 	Y         int
 	Elevation int
+	level     *Level
 	Entities  []*entity.Entity
+}
+
+func (t *Tile) PathNeighbors() []astar.Pather {
+	neighbors := []astar.Pather{
+		t.level.GetTileAt(t.X, t.Y-1), // Up
+		t.level.GetTileAt(t.X+1, t.Y), // Right
+		t.level.GetTileAt(t.X, t.Y+1), // Down
+		t.level.GetTileAt(t.X-1, t.Y), // Left
+	}
+	return neighbors
+}
+
+func (t *Tile) PathNeighborCost(to astar.Pather) float64 {
+	if to == nil {
+		return 100
+	}
+	return float64(t.Elevation - to.(*Tile).Elevation)
+}
+
+func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
+	t2 := to.(*Tile)
+	first := math.Pow(float64(t2.X-t.X), 2)
+	second := math.Pow(float64(t2.Y-t.Y), 2)
+	return math.Sqrt(first + second)
 }
 
 func newLevel(width int, height int) (level *Level) {
@@ -52,7 +78,7 @@ func newLevel(width int, height int) (level *Level) {
 	for x := 0; x < width; x++ {
 		col := []Tile{}
 		for y := 0; y < height; y++ {
-			col = append(col, Tile{Type: 4, X: x, Y: y, SpriteX: 16, SpriteY: 128})
+			col = append(col, Tile{Type: 4, X: x, Y: y, SpriteX: 16, SpriteY: 128, level: level})
 		}
 		data[x] = append(data[x], col...)
 	}

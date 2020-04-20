@@ -5,6 +5,8 @@ import (
 	"goblin-town/entity"
 	entityFactory "goblin-town/entity"
 	"goblin-town/world"
+
+	"github.com/beefsack/go-astar"
 )
 
 // GoblinAISystem Manages the goblin's ai in the simulation
@@ -112,26 +114,30 @@ func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world
 					}
 				}
 			case "approach":
-				if pc.GetX() < aic.TargetX {
-					deltaX = 1
-				}
+				steps, _, _ := astar.Path(level.GetTileAt(pc.GetX(), pc.GetY()), level.GetTileAt(aic.TargetX, aic.TargetY))
+				if len(steps) > 0 {
+					t := steps[0].(*world.Tile)
+					if pc.GetX() < t.X {
+						deltaX = 1
+					}
 
-				if pc.GetX() > aic.TargetX {
-					deltaX = -1
-				}
+					if pc.GetX() > t.X {
+						deltaX = -1
+					}
 
-				if pc.GetY() < aic.TargetY {
-					deltaY = 1
-				}
+					if pc.GetY() < t.Y {
+						deltaY = 1
+					}
 
-				if pc.GetY() > aic.TargetY {
-					deltaY = -1
+					if pc.GetY() > t.Y {
+						deltaY = -1
+					}
+
 				}
 
 				if deltaX == 0 && deltaY == 0 {
 					aic.State = "wander"
 				}
-
 			case "search":
 				//Scan around for food to the best my vision allows me.
 				nearby := level.GetEntitiesAround(pc.GetX(), pc.GetY(), aic.SightRange, aic.SightRange)
