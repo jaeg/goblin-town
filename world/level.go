@@ -48,27 +48,62 @@ type Tile struct {
 }
 
 func (t *Tile) PathNeighbors() []astar.Pather {
-	neighbors := []astar.Pather{
-		t.level.GetTileAt(t.X, t.Y-1), // Up
-		t.level.GetTileAt(t.X+1, t.Y), // Right
-		t.level.GetTileAt(t.X, t.Y+1), // Down
-		t.level.GetTileAt(t.X-1, t.Y), // Left
+	neighbors := []astar.Pather{}
+	for _, offset := range [][]int{
+		{-1, 0},
+		{1, 0},
+		{0, -1},
+		{0, 1},
+	} {
+		if n := t.level.GetTileAt(t.X+offset[0], t.Y+offset[1]); n != nil &&
+			n.Type != 2 {
+			neighbors = append(neighbors, n)
+		}
 	}
 	return neighbors
 }
 
 func (t *Tile) PathNeighborCost(to astar.Pather) float64 {
-	if to == nil {
+	toTile, ok := to.(*Tile)
+	if !ok {
 		return 100
 	}
-	return float64(t.Elevation - to.(*Tile).Elevation)
+	if toTile == nil {
+		return 100
+	}
+	if t == nil {
+		return 100
+	}
+	cost := math.Abs(float64(t.Elevation - toTile.Elevation))
+	if toTile.Type == 2 {
+		cost = 100
+	}
+
+	if toTile.level.GetSolidEntityAt(toTile.X, toTile.Y) != nil {
+		cost = 100
+	}
+	return cost
 }
 
 func (t *Tile) PathEstimatedCost(to astar.Pather) float64 {
-	t2 := to.(*Tile)
+	if to == nil {
+		return -1
+	}
+	t2, ok := to.(*Tile)
+	if !ok {
+		return -1
+	}
+	if t2 == nil {
+		return -1
+	}
+
+	if t == nil {
+		return -1
+	}
+
 	first := math.Pow(float64(t2.X-t.X), 2)
 	second := math.Pow(float64(t2.Y-t.Y), 2)
-	return math.Sqrt(first + second)
+	return first + second
 }
 
 func newLevel(width int, height int) (level *Level) {

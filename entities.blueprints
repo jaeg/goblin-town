@@ -73,7 +73,7 @@ HealthComponent:5
 DamageComponent:2
 SolidComponent:
 FoodComponent:30
-HostileAIComponent:10
+HostileAIComponent:50
 InitiativeComponent:60,1
 
 troll
@@ -83,7 +83,7 @@ HealthComponent:10
 DamageComponent:2
 SolidComponent:
 FoodComponent:10
-HostileAIComponent:10
+HostileAIComponent:30
 InitiativeComponent:90,1
 
 skeleton
@@ -93,7 +93,7 @@ HealthComponent:2
 DamageComponent:1
 SolidComponent:
 NeverSleepComponent:
-HostileAIComponent:
+HostileAIComponent:30
 InitiativeComponent:30,1
 
 zombie
@@ -103,7 +103,7 @@ HealthComponent:2
 DamageComponent:1
 SolidComponent:
 NeverSleepComponent:
-HostileAIComponent:6
+HostileAIComponent:20
 InitiativeComponent:60,1
 
 spider
@@ -113,7 +113,7 @@ HealthComponent:1
 DamageComponent:1
 SolidComponent:
 NeverSleepComponent:
-HostileAIComponent:
+HostileAIComponent:30
 InitiativeComponent:30,1
 PoisonousComponent:60
 
@@ -125,7 +125,7 @@ DamageComponent:4
 FoodComponent:200
 NocturnalComponent:
 SolidComponent:
-HostileAIComponent:20
+HostileAIComponent:100
 InitiativeComponent:30,1
 MassiveComponent:
 
@@ -136,7 +136,7 @@ HealthComponent:15
 DamageComponent:3
 FoodComponent:30
 SolidComponent:
-HostileAIComponent:10
+HostileAIComponent:60
 InitiativeComponent:90,1
 MassiveComponent:
 
@@ -147,7 +147,7 @@ HealthComponent:7
 DamageComponent:3
 FoodComponent:40
 SolidComponent:
-HostileAIComponent:20
+HostileAIComponent:50
 InitiativeComponent:40,1
 
 darkknight
@@ -156,7 +156,7 @@ AppearanceComponent:192,160,255,255,255
 HealthComponent:10
 DamageComponent:3
 SolidComponent:
-HostileAIComponent:10
+HostileAIComponent:40
 InitiativeComponent:30,1
 
 food

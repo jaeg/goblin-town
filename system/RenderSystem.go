@@ -365,6 +365,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 						if entity.HasComponent("SelectedComponent") {
 							drawSprite(tX, tY, 112, 128, 255, 255, 255, uiTexture)
+
 							if entity.HasComponent("DescriptionComponent") {
 								dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
 								drawText(World_W, 10, dc.Name)

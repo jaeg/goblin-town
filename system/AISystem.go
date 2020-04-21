@@ -47,55 +47,63 @@ func (s AISystem) Update(level *world.Level, entity *entity.Entity) *world.Level
 
 				//Scan around for food to the best my vision allows me.
 				nearby := level.GetEntitiesAround(pc.GetX(), pc.GetY(), hc.SightRange, hc.SightRange)
-				hunting := false
-				for e := range nearby {
-					if nearby[e] != entity {
-						friendly := false
-						if entity.HasComponent("DescriptionComponent") {
-							if nearby[e].HasComponent("DescriptionComponent") {
-								myDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-								hitDC := nearby[e].GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+				if len(nearby) > 0 {
+					closest := entity
+					distance := 999999.0
+					for e := range nearby {
+						if nearby[e] != entity {
+							friendly := false
+							if entity.HasComponent("DescriptionComponent") {
+								if nearby[e].HasComponent("DescriptionComponent") {
+									myDC := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
+									hitDC := nearby[e].GetComponent("DescriptionComponent").(*component.DescriptionComponent)
 
-								if myDC.Faction != "none" && myDC.Faction != "" {
-									if myDC.Faction == hitDC.Faction {
-										friendly = true
+									if myDC.Faction != "none" && myDC.Faction != "" {
+										if myDC.Faction == hitDC.Faction {
+											friendly = true
+
+										}
 									}
 								}
-
 							}
-						}
-						if !friendly {
-							if (nearby[e].HasComponent("FoodComponent") || nearby[e].HasComponent("GoblinAIComponent")) && !nearby[e].HasComponent("DeadComponent") {
+							if !friendly {
 								foodPC := nearby[e].GetComponent("PositionComponent").(*component.PositionComponent)
-								hc.TargetX = foodPC.GetX()
-								hc.TargetY = foodPC.GetY()
-								hunting = true
-								break
+								if (nearby[e].HasComponent("FoodComponent") || nearby[e].HasComponent("GoblinAIComponent")) && !nearby[e].HasComponent("DeadComponent") {
+									tDistance := level.GetTileAt(pc.GetX(), pc.GetY()).PathEstimatedCost(level.GetTileAt(foodPC.GetX(), foodPC.GetY()))
+									if tDistance < distance {
+
+										closest = nearby[e]
+										distance = tDistance
+									}
+								}
 							}
 						}
 					}
-				}
 
-				if hunting {
-					steps, _, _ := astar.Path(level.GetTileAt(pc.GetX(), pc.GetY()), level.GetTileAt(hc.TargetX, hc.TargetY))
-					if len(steps) > 0 {
-						t := steps[0].(*world.Tile)
-						if pc.GetX() < t.X {
-							deltaX = 1
+					if closest != entity {
+						foodPC := closest.GetComponent("PositionComponent").(*component.PositionComponent)
+						hc.TargetX = foodPC.GetX()
+						hc.TargetY = foodPC.GetY()
+						steps, _, _ := astar.Path(level.GetTileAt(pc.GetX(), pc.GetY()), level.GetTileAt(hc.TargetX, hc.TargetY))
+						if len(steps) > 0 {
+							t := steps[0].(*world.Tile)
+							if pc.GetX() < t.X {
+								deltaX = 1
+							}
+
+							if pc.GetX() > t.X {
+								deltaX = -1
+							}
+
+							if pc.GetY() < t.Y {
+								deltaY = 1
+							}
+
+							if pc.GetY() > t.Y {
+								deltaY = -1
+							}
+
 						}
-
-						if pc.GetX() > t.X {
-							deltaX = -1
-						}
-
-						if pc.GetY() < t.Y {
-							deltaY = 1
-						}
-
-						if pc.GetY() > t.Y {
-							deltaY = -1
-						}
-
 					}
 				}
 
