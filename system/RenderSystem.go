@@ -2,10 +2,11 @@ package system
 
 import (
 	"fmt"
-	"goblin-town/component"
-	"goblin-town/world"
 	"os"
 	"strconv"
+
+	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/world"
 
 	"github.com/veandco/go-sdl2/img"
 	"github.com/veandco/go-sdl2/sdl"

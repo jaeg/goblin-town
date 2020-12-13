@@ -4,11 +4,12 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"goblin-town/component"
-	"goblin-town/lore"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/lore"
 )
 
 var blueprints = make(map[string][]string)

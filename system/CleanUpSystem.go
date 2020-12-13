@@ -1,8 +1,8 @@
 package system
 
 import (
-	"goblin-town/component"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/world"
 )
 
 type CleanUpSystem struct {

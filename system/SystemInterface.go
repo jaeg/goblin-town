@@ -1,8 +1,8 @@
 package system
 
 import (
-	"goblin-town/entity"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/entity"
+	"github.com/jaeg/goblin-town/world"
 )
 
 // System base system interface

@@ -1,9 +1,9 @@
 package system
 
 import (
-	"goblin-town/component"
-	"goblin-town/entity"
-	"goblin-town/world"
+	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/entity"
+	"github.com/jaeg/goblin-town/world"
 )
 
 type InitiativeSystem struct {

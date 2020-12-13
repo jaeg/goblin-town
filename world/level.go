@@ -6,8 +6,8 @@ import (
 	"math/rand"
 	"time"
 
-	"goblin-town/component"
-	"goblin-town/entity"
+	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/entity"
 
 	"github.com/aquilax/go-perlin"
 	"github.com/beefsack/go-astar"

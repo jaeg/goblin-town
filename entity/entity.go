@@ -1,7 +1,7 @@
 package entity
 
 import (
-	"goblin-town/component"
+	"github.com/jaeg/goblin-town/component"
 )
 
 // Entity .

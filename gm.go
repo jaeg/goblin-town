@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"goblin-town/component"
-	"goblin-town/entity"
-	"goblin-town/system"
-	"goblin-town/world"
 	"math/rand"
+
+	"github.com/jaeg/goblin-town/entity"
+	"github.com/jaeg/goblin-town/system"
+	"github.com/jaeg/goblin-town/world"
+
+	"github.com/jaeg/goblin-town/component"
 )
 
 const foodMinimum = 100
