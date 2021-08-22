@@ -9,6 +9,9 @@ import (
 	"github.com/beefsack/go-astar"
 )
 
+var GoblinTorch_X = 0
+var GoblinTorch_Y = 0
+
 // GoblinAISystem Manages the goblin's ai in the simulation
 type GoblinAISystem struct {
 }

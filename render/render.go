@@ -1,4 +1,4 @@
-package system
+package render
 
 import (
 	"fmt"
@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/jaeg/goblin-town/component"
+	"github.com/jaeg/goblin-town/system"
 	"github.com/jaeg/goblin-town/world"
 
 	"github.com/veandco/go-sdl2/img"
@@ -27,17 +28,16 @@ const MiniMap_Y = 200
 const MiniMap_W = 180
 const MiniMap_H = 180
 
-type RenderSystem struct {
+type Renderer struct {
+	renderer         *sdl.Renderer
+	characterTexture *sdl.Texture
+	fxTexture        *sdl.Texture
+	worldTexture     *sdl.Texture
+	uiTexture        *sdl.Texture
+	window           *sdl.Window
+	font             *ttf.Font
+	miniMapTexture   *sdl.Texture
 }
-
-var renderer *sdl.Renderer
-var characterTexture *sdl.Texture
-var fxTexture *sdl.Texture
-var worldTexture *sdl.Texture
-var uiTexture *sdl.Texture
-var window *sdl.Window
-var font *ttf.Font
-var miniMapTexture *sdl.Texture
 
 var CameraX = 0
 var CameraY = 0
@@ -47,16 +47,14 @@ var Zoom = 1
 var releasedZoom = true
 
 var Beat = 0
-var GoblinTorch_X = 0
-var GoblinTorch_Y = 0
 
-func (s RenderSystem) Init() {
+func (s *Renderer) Init() {
 	err := sdl.Init(sdl.INIT_EVERYTHING)
 	if err != nil {
 		panic(err)
 	}
 
-	window, err = sdl.CreateWindow("Tiles", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
+	s.window, err = sdl.CreateWindow("Tiles", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		Window_W, Window_H, sdl.WINDOW_SHOWN)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create window: %s\n", err)
@@ -68,7 +66,7 @@ func (s RenderSystem) Init() {
 		return
 	}
 
-	renderer, err = sdl.CreateRenderer(window, -1, sdl.RENDERER_ACCELERATED)
+	s.renderer, err = sdl.CreateRenderer(s.window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
 		return
@@ -80,7 +78,7 @@ func (s RenderSystem) Init() {
 		return
 	}
 
-	characterTexture, err = renderer.CreateTextureFromSurface(image)
+	s.characterTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
 		return
@@ -94,7 +92,7 @@ func (s RenderSystem) Init() {
 		return
 	}
 
-	fxTexture, err = renderer.CreateTextureFromSurface(image)
+	s.fxTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
 		return
@@ -108,7 +106,7 @@ func (s RenderSystem) Init() {
 		return
 	}
 
-	worldTexture, err = renderer.CreateTextureFromSurface(image)
+	s.worldTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
 		return
@@ -122,13 +120,13 @@ func (s RenderSystem) Init() {
 		return
 	}
 
-	uiTexture, err = renderer.CreateTextureFromSurface(image)
+	s.uiTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
 		return
 	}
 
-	if font, err = ttf.OpenFont("Roboto-Regular.ttf", 30); err != nil {
+	if s.font, err = ttf.OpenFont("Roboto-Regular.ttf", 30); err != nil {
 		fmt.Printf("Failed to open font: %s\n", err)
 		return
 	}
@@ -138,40 +136,40 @@ func (s RenderSystem) Init() {
 	sdl.ShowCursor(0)
 }
 
-func (s RenderSystem) Cleanup() {
+func (s *Renderer) Cleanup() {
 	sdl.Quit()
-	window.Destroy()
-	renderer.Destroy()
-	worldTexture.Destroy()
-	characterTexture.Destroy()
-	uiTexture.Destroy()
+	s.window.Destroy()
+	s.renderer.Destroy()
+	s.worldTexture.Destroy()
+	s.characterTexture.Destroy()
+	s.uiTexture.Destroy()
 
 }
 
-// RenderSystem .
-func (s RenderSystem) Update(level *world.Level) *world.Level {
-	pX := Mouse.X/Tile_Size_W + CameraX
-	pY := Mouse.Y/Tile_Size_H + CameraY
+// Renderer Update
+func (s *Renderer) Update(level *world.Level) *world.Level {
+	pX := system.Mouse.X/Tile_Size_W + CameraX
+	pY := system.Mouse.Y/Tile_Size_H + CameraY
 
-	if Keyboard.GetKey("a") == 1 && CameraX > 0 {
+	if system.Keyboard.GetKey("a") == 1 && CameraX > 0 {
 		CameraX--
 	}
-	if Keyboard.GetKey("d") == 1 && CameraX < level.Width-World_W/Tile_Size_W-1 {
+	if system.Keyboard.GetKey("d") == 1 && CameraX < level.Width-World_W/Tile_Size_W-1 {
 		CameraX++
 	}
-	if Keyboard.GetKey("w") == 1 && CameraY > 0 {
+	if system.Keyboard.GetKey("w") == 1 && CameraY > 0 {
 		CameraY--
 	}
-	if Keyboard.GetKey("s") == 1 && CameraY < level.Height-World_H/Tile_Size_H-1 {
+	if system.Keyboard.GetKey("s") == 1 && CameraY < level.Height-World_H/Tile_Size_H-1 {
 		CameraY++
 	}
 
-	if Keyboard.GetKey("1") == 1 {
+	if system.Keyboard.GetKey("1") == 1 {
 		if releasedZoom == true {
 			Tile_Size_H = 32
 			Tile_Size_W = 32
-			CameraX = Mouse.X/Tile_Size_W + CameraX
-			CameraY = Mouse.Y/Tile_Size_H + CameraY
+			CameraX = system.Mouse.X/Tile_Size_W + CameraX
+			CameraY = system.Mouse.Y/Tile_Size_H + CameraY
 
 			if CameraY > level.Height-World_H/Tile_Size_H-1 {
 				CameraY = level.Height - World_H/Tile_Size_H - 1
@@ -184,12 +182,12 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 		}
 
 	}
-	if Keyboard.GetKey("2") == 1 {
+	if system.Keyboard.GetKey("2") == 1 {
 		if releasedZoom == true {
 			Tile_Size_H = 16
 			Tile_Size_W = 16
-			CameraX = Mouse.X/Tile_Size_W + CameraX
-			CameraY = Mouse.Y/Tile_Size_H + CameraY
+			CameraX = system.Mouse.X/Tile_Size_W + CameraX
+			CameraY = system.Mouse.Y/Tile_Size_H + CameraY
 
 			if CameraY > level.Height-World_H/Tile_Size_H-1 {
 				CameraY = level.Height - World_H/Tile_Size_H - 1
@@ -201,12 +199,12 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 			releasedZoom = false
 		}
 	}
-	if Keyboard.GetKey("3") == 1 {
+	if system.Keyboard.GetKey("3") == 1 {
 		if releasedZoom == true {
 			Tile_Size_H = 8
 			Tile_Size_W = 8
-			CameraX = Mouse.X/Tile_Size_W + CameraX
-			CameraY = Mouse.Y/Tile_Size_H + CameraY
+			CameraX = system.Mouse.X/Tile_Size_W + CameraX
+			CameraY = system.Mouse.Y/Tile_Size_H + CameraY
 
 			if CameraY > level.Height-World_H/Tile_Size_H-1 {
 				CameraY = level.Height - World_H/Tile_Size_H - 1
@@ -219,7 +217,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 		}
 	}
 
-	if Keyboard.GetKey("4") == 1 {
+	if system.Keyboard.GetKey("4") == 1 {
 		if releasedZoom == true {
 			Tile_Size_H = 4
 			Tile_Size_W = 4
@@ -229,7 +227,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 		}
 	}
 
-	if Keyboard.GetKey("4") == 0 && Keyboard.GetKey("1") == 0 && Keyboard.GetKey("2") == 0 && Keyboard.GetKey("3") == 0 && Keyboard.GetKey("4") == 0 {
+	if system.Keyboard.GetKey("4") == 0 && system.Keyboard.GetKey("1") == 0 && system.Keyboard.GetKey("2") == 0 && system.Keyboard.GetKey("3") == 0 && system.Keyboard.GetKey("4") == 0 {
 		releasedZoom = true
 	}
 
@@ -238,9 +236,9 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 
 	view := level.GetView(CameraX, CameraY, viewWidth, viewHeight, false, false)
 
-	renderer.Clear()
-	renderer.SetDrawColor(255, 255, 255, 255)
-	renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
+	s.renderer.Clear()
+	s.renderer.SetDrawColor(255, 255, 255, 255)
+	s.renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
 
 	//Draw menu
 	for x := World_W; x < Window_W; x += 16 {
@@ -263,32 +261,32 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 				sY = 0
 				sX = 144
 			}
-			drawSprite(int32(x), int32(y), sX, sY, 255, 255, 255, uiTexture)
+			s.drawSprite(int32(x), int32(y), sX, sY, 255, 255, 255, s.uiTexture)
 		}
 	}
 
-	if miniMapTexture == nil {
-		CreateMiniMap(level)
+	if s.miniMapTexture == nil {
+		s.CreateMiniMap(level)
 		fmt.Println("Create mini map")
 	} else {
-		_, _, w, h, _ := miniMapTexture.Query()
+		_, _, w, h, _ := s.miniMapTexture.Query()
 		src := sdl.Rect{X: 0, Y: 0, W: w, H: h}
 		dst := sdl.Rect{X: MiniMap_X, Y: MiniMap_Y, W: MiniMap_W, H: MiniMap_H}
-		renderer.Copy(miniMapTexture, &src, &dst)
+		s.renderer.Copy(s.miniMapTexture, &src, &dst)
 
 		scale := float64(MiniMap_W) / float64(level.Width)
 
 		scaledX := MiniMap_X + float64(CameraX)*scale
 		scaledY := MiniMap_Y + float64(CameraY)*scale
 		//Box
-		renderer.DrawRect(&sdl.Rect{X: int32(scaledX), Y: int32(scaledY), W: int32(float64(len(view)) * scale), H: int32(float64(len(view[0])) * scale)})
+		s.renderer.DrawRect(&sdl.Rect{X: int32(scaledX), Y: int32(scaledY), W: int32(float64(len(view)) * scale), H: int32(float64(len(view[0])) * scale)})
 
 		//Torch
-		scaledX = MiniMap_X + float64(GoblinTorch_X)*scale
-		scaledY = MiniMap_Y + float64(GoblinTorch_Y)*scale
-		renderer.SetDrawColor(255, 0, 0, 255)
-		renderer.DrawRect(&sdl.Rect{X: int32(scaledX - 2), Y: int32(scaledY - 2), W: 4, H: 4})
-		renderer.SetDrawColor(255, 255, 255, 255)
+		scaledX = MiniMap_X + float64(system.GoblinTorch_X)*scale
+		scaledY = MiniMap_Y + float64(system.GoblinTorch_Y)*scale
+		s.renderer.SetDrawColor(255, 0, 0, 255)
+		s.renderer.DrawRect(&sdl.Rect{X: int32(scaledX - 2), Y: int32(scaledY - 2), W: 4, H: 4})
+		s.renderer.SetDrawColor(255, 255, 255, 255)
 
 	}
 
@@ -300,7 +298,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 			tile := view[x][y]
 
 			if tile == nil {
-				drawSprite(tX, tY, 0, 112, 255, 255, 255, worldTexture) //Empty space
+				s.drawSprite(tX, tY, 0, 112, 255, 255, 255, s.worldTexture) //Empty space
 			} else {
 				//For tiles we want the higher tiles to appear whiter to convey depth.  The background is white
 				//so changing the alpha does this for us.
@@ -321,7 +319,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 					depth = 255 + tile.Elevation*20
 				}
 
-				drawSpriteEx(tX, tY, tile.SpriteX, tile.SpriteY, int32(Tile_Size_W), int32(Tile_Size_H), uint8(depth), uint8(depth), uint8(depth), uint8(alpha), worldTexture) //Tile itself
+				s.drawSpriteEx(tX, tY, tile.SpriteX, tile.SpriteY, int32(Tile_Size_W), int32(Tile_Size_H), uint8(depth), uint8(depth), uint8(depth), uint8(alpha), s.worldTexture) //Tile itself
 
 				//Draw entity on tile.
 				entity := level.GetEntityAt(tile.X, tile.Y)
@@ -335,20 +333,20 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 
 						if entity.HasComponent("InanimateComponent") {
-							drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, worldTexture)
+							s.drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, s.worldTexture)
 						} else {
 							if entity.HasComponent("DeadComponent") {
-								drawSpriteUpsideDown(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, characterTexture) //Entity
+								s.drawSpriteUpsideDown(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY, ac.R, ac.G, ac.B, s.characterTexture) //Entity
 							} else {
 								//Entity
-								drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY+(int32(Beat)*Sprite_Size_H), ac.R, ac.G, ac.B, characterTexture)
+								s.drawSprite(tX, tY, ac.SpriteX+(int32(dir)*Sprite_Size_W), ac.SpriteY+(int32(Beat)*Sprite_Size_H), ac.R, ac.G, ac.B, s.characterTexture)
 								//Draw FX
 								if entity.HasComponent("AttackComponent") {
 									attackC := entity.GetComponent("AttackComponent").(*component.AttackComponent)
 									if attackC.Frame == 3 {
 										entity.RemoveComponent("AttackComponent")
 									} else {
-										drawSprite(tX, tY, int32(attackC.SpriteX)+(int32(attackC.Frame)*Sprite_Size_W), int32(attackC.SpriteY), 255, 255, 255, fxTexture)
+										s.drawSprite(tX, tY, int32(attackC.SpriteX)+(int32(attackC.Frame)*Sprite_Size_W), int32(attackC.SpriteY), 255, 255, 255, s.fxTexture)
 										attackC.Frame++
 									}
 								}
@@ -356,7 +354,7 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 						}
 
 						//Temp select code
-						if pX == tile.X && pY == tile.Y && Mouse.Clicked {
+						if pX == tile.X && pY == tile.Y && system.Mouse.Clicked {
 							for _, entity := range level.Entities {
 								if entity.HasComponent("SelectedComponent") {
 									entity.RemoveComponent("SelectedComponent")
@@ -365,27 +363,27 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 							entity.AddComponent(component.SelectedComponent{})
 						}
 						if entity.HasComponent("SelectedComponent") {
-							drawSprite(tX, tY, 112, 128, 255, 255, 255, uiTexture)
+							s.drawSprite(tX, tY, 112, 128, 255, 255, 255, s.uiTexture)
 
 							if entity.HasComponent("DescriptionComponent") {
 								dc := entity.GetComponent("DescriptionComponent").(*component.DescriptionComponent)
-								drawText(World_W, 10, dc.Name)
+								s.drawText(World_W, 10, dc.Name)
 							}
 							if entity.HasComponent("GoblinAIComponent") {
 								gc := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
 
-								drawText(World_W, 50, gc.State)
-								drawText(World_W, 75, "Energy:"+strconv.Itoa(gc.Energy))
+								s.drawText(World_W, 50, gc.State)
+								s.drawText(World_W, 75, "Energy:"+strconv.Itoa(gc.Energy))
 							}
 
 							if entity.HasComponent("HealthComponent") {
 								gc := entity.GetComponent("HealthComponent").(*component.HealthComponent)
 
-								drawText(World_W, 85, "Hp:"+strconv.Itoa(gc.Health))
+								s.drawText(World_W, 85, "Hp:"+strconv.Itoa(gc.Health))
 							}
 
 							if entity.HasComponent("DeadComponent") {
-								drawText(World_W, 0, "Dead")
+								s.drawText(World_W, 0, "Dead")
 							}
 
 						}
@@ -393,30 +391,30 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 				}
 
 				//Torch
-				if GoblinTorch_X == tile.X && GoblinTorch_Y == tile.Y {
-					drawSprite(tX, tY, 80+int32(Sprite_Size_W*Beat), 192, 255, 255, 255, worldTexture)
+				if system.GoblinTorch_X == tile.X && system.GoblinTorch_Y == tile.Y {
+					s.drawSprite(tX, tY, 80+int32(Sprite_Size_W*Beat), 192, 255, 255, 255, s.worldTexture)
 				}
 
 				//Cursor stuff
 				var cursorY int32
 				cursorY = 128
-				if Mouse.Clicked {
+				if system.Mouse.Clicked {
 					cursorY = 144
-					if Mouse.X > MiniMap_X && Mouse.X < MiniMap_X+MiniMap_W && Mouse.Y > MiniMap_Y && Mouse.Y < MiniMap_Y+MiniMap_H {
+					if system.Mouse.X > MiniMap_X && system.Mouse.X < MiniMap_X+MiniMap_W && system.Mouse.Y > MiniMap_Y && system.Mouse.Y < MiniMap_Y+MiniMap_H {
 						scale := float64(MiniMap_W) / float64(level.Width)
-						scaledX := int(float64(Mouse.X-MiniMap_X) / scale)
-						scaledY := int(float64(Mouse.Y-MiniMap_Y) / scale)
+						scaledX := int(float64(system.Mouse.X-MiniMap_X) / scale)
+						scaledY := int(float64(system.Mouse.Y-MiniMap_Y) / scale)
 						PlaceCamera(int(scaledX), int(scaledY), level)
 
 						PlaceCamera(scaledX, scaledY, level)
 					}
 				}
 				if pX == tile.X && pY == tile.Y {
-					drawSprite(tX, tY, 128, cursorY, 255, 255, 255, uiTexture) //Cursor?
+					s.drawSprite(tX, tY, 128, cursorY, 255, 255, 255, s.uiTexture) //Cursor?
 				}
 
-				if Mouse.X > World_W {
-					drawSprite(int32(Mouse.X), int32(Mouse.Y), 64, cursorY, 255, 255, 255, uiTexture) //Cursor?
+				if system.Mouse.X > World_W {
+					s.drawSprite(int32(system.Mouse.X), int32(system.Mouse.Y), 64, cursorY, 255, 255, 255, s.uiTexture) //Cursor?
 				}
 			}
 		}
@@ -432,77 +430,77 @@ func (s RenderSystem) Update(level *world.Level) *world.Level {
 	//Dawn - Get's brighter between 5am and 8am.
 	if level.Hour >= 5 && level.Hour < 8 {
 		alpha := 125 - 10*level.Hour
-		renderer.SetDrawColor(0, 0, 0, uint8(alpha))
-		renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
-		renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
-		renderer.SetDrawColor(255, 255, 255, 255)
+		s.renderer.SetDrawColor(0, 0, 0, uint8(alpha))
+		s.renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+		s.renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
+		s.renderer.SetDrawColor(255, 255, 255, 255)
 	} else if level.Hour > 17 && level.Hour <= 21 { //Dusk - Get's darker between 7pm and 9pm.
 		alpha := 0 + 25*(level.Hour-16)
-		renderer.SetDrawColor(0, 0, 0, uint8(alpha))
-		renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
-		renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
-		renderer.SetDrawColor(255, 255, 255, 255)
+		s.renderer.SetDrawColor(0, 0, 0, uint8(alpha))
+		s.renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+		s.renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
+		s.renderer.SetDrawColor(255, 255, 255, 255)
 	} else if level.Hour > 21 || (level.Hour >= 0 && level.Hour < 5) {
-		renderer.SetDrawColor(0, 0, 0, 125)
-		renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
-		renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
-		renderer.SetDrawColor(255, 255, 255, 255)
+		s.renderer.SetDrawColor(0, 0, 0, 125)
+		s.renderer.SetDrawBlendMode(sdl.BLENDMODE_BLEND)
+		s.renderer.FillRect(&sdl.Rect{X: 0, Y: 0, W: World_W, H: World_H})
+		s.renderer.SetDrawColor(255, 255, 255, 255)
 	}
 
-	renderer.Present()
+	s.renderer.Present()
 
 	return level
 }
 
-func drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
+func (s *Renderer) drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
 	texture.SetColorMod(r, g, b)
 	texture.SetAlphaMod(255)
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
-	renderer.Copy(texture, &src, &dst)
+	s.renderer.Copy(texture, &src, &dst)
 
 }
 
-func drawSpriteEx(x int32, y int32, sx int32, sy int32, w int32, h int32, r uint8, g uint8, b uint8, a uint8, texture *sdl.Texture) {
+func (s *Renderer) drawSpriteEx(x int32, y int32, sx int32, sy int32, w int32, h int32, r uint8, g uint8, b uint8, a uint8, texture *sdl.Texture) {
 	texture.SetColorMod(r, g, b)
 	texture.SetAlphaMod(a)
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
-	renderer.Copy(texture, &src, &dst)
+	s.renderer.Copy(texture, &src, &dst)
 
 }
 
-func drawSpriteUpsideDown(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
+func (s *Renderer) drawSpriteUpsideDown(x int32, y int32, sx int32, sy int32, r uint8, g uint8, b uint8, texture *sdl.Texture) {
 	texture.SetColorMod(r, g, b)
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
-	renderer.CopyEx(texture, &src, &dst, 0, nil, sdl.FLIP_VERTICAL)
+	s.renderer.CopyEx(texture, &src, &dst, 0, nil, sdl.FLIP_VERTICAL)
 
 }
 
-func drawText(x int32, y int32, text string) {
+func (s *Renderer) drawText(x int32, y int32, text string) {
 
 	var solidTexture *sdl.Texture
 	var err error
 
 	var solidSurface *sdl.Surface
-	if solidSurface, err = font.RenderUTF8BlendedWrapped(text, sdl.Color{255, 255, 255, 255}, 192); err != nil {
+	if solidSurface, err = s.font.RenderUTF8BlendedWrapped(text, sdl.Color{255, 255, 255, 255}, 192); err != nil {
 		fmt.Printf("Failed to render text: %s\n", err)
 		return
 	}
 
-	if solidTexture, err = renderer.CreateTextureFromSurface(solidSurface); err != nil {
+	if solidTexture, err = s.renderer.CreateTextureFromSurface(solidSurface); err != nil {
 		fmt.Printf("Failed to create texture: %s\n", err)
 		return
 	}
 	solidSurface.Free()
 	_, _, w, h, err := solidTexture.Query()
 	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
-	renderer.Copy(solidTexture, nil, &dst)
+	s.renderer.Copy(solidTexture, nil, &dst)
 	solidTexture.Destroy()
 }
 
-func CreateMiniMap(level *world.Level) {
+func (s *Renderer) CreateMiniMap(level *world.Level) {
 	image, err := img.Load("tiny_dungeon_world.png")
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
@@ -532,7 +530,7 @@ func CreateMiniMap(level *world.Level) {
 		}
 	}
 
-	if miniMapTexture, err = renderer.CreateTextureFromSurface(surface); err != nil {
+	if s.miniMapTexture, err = s.renderer.CreateTextureFromSurface(surface); err != nil {
 		fmt.Printf("Failed to create minimap texture: %s\n", err)
 		return
 	}

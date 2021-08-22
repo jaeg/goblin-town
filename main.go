@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jaeg/goblin-town/entity"
+	"github.com/jaeg/goblin-town/render"
 	"github.com/jaeg/goblin-town/system"
 	"github.com/jaeg/goblin-town/world"
 )
@@ -45,7 +46,7 @@ func main() {
 	systems = append(systems, system.StatusConditionSystem{})
 
 	//Render System
-	rs := system.RenderSystem{}
+	rs := render.Renderer{}
 	rs.Init()
 	defer rs.Cleanup()
 	//systems = append(systems, rs)
@@ -66,10 +67,10 @@ func main() {
 		}
 
 		if ticks%30 == 0 {
-			if system.Beat == 1 {
-				system.Beat = 0
+			if render.Beat == 1 {
+				render.Beat = 0
 			} else {
-				system.Beat = 1
+				render.Beat = 1
 			}
 		}
 		//start := time.Now()

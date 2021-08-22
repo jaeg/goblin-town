@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/jaeg/goblin-town/entity"
+	"github.com/jaeg/goblin-town/render"
 	"github.com/jaeg/goblin-town/system"
 	"github.com/jaeg/goblin-town/world"
 
@@ -41,7 +42,7 @@ func (gm *GameMaster) Init(level *world.Level) {
 		tile = level.GetTileAt(x, y)
 	}
 	level.CreateClusterOfGoblins(x, y, STARTING_GOBLINS)
-	system.CenterCamera(x, y, level)
+	render.CenterCamera(x, y, level)
 
 	fmt.Println("Placing food")
 	//Random food
