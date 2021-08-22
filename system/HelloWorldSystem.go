@@ -1,7 +1,7 @@
 package system
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/jaeg/goblin-town/component"
 )
@@ -12,5 +12,5 @@ type HelloWorldSystem struct {
 
 // Update .
 func (HelloWorldSystem) Update(a *component.HelloWorldComponent) {
-	fmt.Println("hello world")
+	log.Println("hello world")
 }

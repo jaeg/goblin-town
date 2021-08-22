@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -60,7 +59,7 @@ func main() {
 		ticks++
 		if ticks >= 120 {
 			level.NextHour()
-			fmt.Println("The hour is now:", level.Hour)
+			log.Println("The hour is now:", level.Hour)
 			ticks = 0
 		}
 

@@ -1,8 +1,7 @@
 package render
 
 import (
-	"fmt"
-	"os"
+	"log"
 	"strconv"
 
 	"github.com/jaeg/goblin-town/component"
@@ -57,30 +56,30 @@ func (s *Renderer) Init() {
 	s.window, err = sdl.CreateWindow("Tiles", sdl.WINDOWPOS_UNDEFINED, sdl.WINDOWPOS_UNDEFINED,
 		Window_W, Window_H, sdl.WINDOW_SHOWN)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create window: %s\n", err)
+		log.Printf("Failed to create window: %s\n", err)
 		return
 	}
 
 	if err = ttf.Init(); err != nil {
-		fmt.Printf("Failed to initialize TTF: %s\n", err)
+		log.Printf("Failed to initialize TTF: %s\n", err)
 		return
 	}
 
 	s.renderer, err = sdl.CreateRenderer(s.window, -1, sdl.RENDERER_ACCELERATED)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create renderer: %s\n", err)
+		log.Printf("Failed to create renderer: %s\n", err)
 		return
 	}
 
 	image, err := img.Load("tiny_dungeon_monsters.png")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
+		log.Printf("Failed to load BMP: %s\n", err)
 		return
 	}
 
 	s.characterTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
+		log.Printf("Failed to create texture: %s\n", err)
 		return
 	}
 
@@ -88,13 +87,13 @@ func (s *Renderer) Init() {
 
 	image, err = img.Load("tiny_dungeon_fx.png")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
+		log.Printf("Failed to load BMP: %s\n", err)
 		return
 	}
 
 	s.fxTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
+		log.Printf("Failed to create texture: %s\n", err)
 		return
 	}
 
@@ -102,13 +101,13 @@ func (s *Renderer) Init() {
 
 	image, err = img.Load("tiny_dungeon_world.png")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
+		log.Printf("Failed to load BMP: %s\n", err)
 		return
 	}
 
 	s.worldTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
+		log.Printf("Failed to create texture: %s\n", err)
 		return
 	}
 
@@ -116,18 +115,18 @@ func (s *Renderer) Init() {
 
 	image, err = img.Load("tiny_dungeon_interface.png")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
+		log.Printf("Failed to load BMP: %s\n", err)
 		return
 	}
 
 	s.uiTexture, err = s.renderer.CreateTextureFromSurface(image)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to create texture: %s\n", err)
+		log.Printf("Failed to create texture: %s\n", err)
 		return
 	}
 
 	if s.font, err = ttf.OpenFont("Roboto-Regular.ttf", 30); err != nil {
-		fmt.Printf("Failed to open font: %s\n", err)
+		log.Printf("Failed to open font: %s\n", err)
 		return
 	}
 
@@ -267,7 +266,7 @@ func (s *Renderer) Update(level *world.Level) *world.Level {
 
 	if s.miniMapTexture == nil {
 		s.CreateMiniMap(level)
-		fmt.Println("Create mini map")
+		log.Println("Create mini map")
 	} else {
 		_, _, w, h, _ := s.miniMapTexture.Query()
 		src := sdl.Rect{X: 0, Y: 0, W: w, H: h}
@@ -485,18 +484,18 @@ func (s *Renderer) drawText(x int32, y int32, text string) {
 
 	var solidSurface *sdl.Surface
 	if solidSurface, err = s.font.RenderUTF8BlendedWrapped(text, sdl.Color{R: 255, G: 255, B: 255, A: 255}, 192); err != nil {
-		fmt.Printf("Failed to render text: %s\n", err)
+		log.Printf("Failed to render text: %s\n", err)
 		return
 	}
 
 	if solidTexture, err = s.renderer.CreateTextureFromSurface(solidSurface); err != nil {
-		fmt.Printf("Failed to create texture: %s\n", err)
+		log.Printf("Failed to create texture: %s\n", err)
 		return
 	}
 	solidSurface.Free()
 	_, _, w, h, err := solidTexture.Query()
 	if err != nil {
-		fmt.Printf("Error querying texture")
+		log.Printf("Error querying texture")
 	}
 	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
 	s.renderer.Copy(solidTexture, nil, &dst)
@@ -506,14 +505,14 @@ func (s *Renderer) drawText(x int32, y int32, text string) {
 func (s *Renderer) CreateMiniMap(level *world.Level) {
 	image, err := img.Load("tiny_dungeon_world.png")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Failed to load BMP: %s\n", err)
+		log.Printf("Failed to load BMP: %s\n", err)
 		return
 	}
 
 	surface, err := sdl.CreateRGBSurface(0, int32(level.Width), int32(level.Height), 16, 0, 0, 0, 0)
 
 	if err != nil {
-		fmt.Printf("Failed to create minimap surface: %s\n", err)
+		log.Printf("Failed to create minimap surface: %s\n", err)
 		return
 	}
 	//Draw minimap
@@ -527,14 +526,14 @@ func (s *Renderer) CreateMiniMap(level *world.Level) {
 			dst := &sdl.Rect{X: tX, Y: tY, W: 1, H: 1}
 			err = image.Blit(src, surface, dst)
 			if err != nil {
-				fmt.Printf("Failed to create minimap surface: %s\n", err)
+				log.Printf("Failed to create minimap surface: %s\n", err)
 				return
 			}
 		}
 	}
 
 	if s.miniMapTexture, err = s.renderer.CreateTextureFromSurface(surface); err != nil {
-		fmt.Printf("Failed to create minimap texture: %s\n", err)
+		log.Printf("Failed to create minimap texture: %s\n", err)
 		return
 	}
 	image.Free()

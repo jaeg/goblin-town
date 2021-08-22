@@ -3,7 +3,7 @@ package entity
 import (
 	"bufio"
 	"errors"
-	"fmt"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -30,7 +30,7 @@ func FactoryLoad(filename string) {
 	entityName := ""
 	for scanner.Scan() {
 		value := scanner.Text()
-		fmt.Println(value)
+		log.Println(value)
 		if value == "" {
 			entityName = ""
 			continue
@@ -43,7 +43,7 @@ func FactoryLoad(filename string) {
 		}
 	}
 
-	fmt.Println("Finished", blueprints)
+	log.Println("Finished", blueprints)
 }
 
 func Create(name string, x int, y int) (*Entity, error) {
@@ -91,7 +91,7 @@ func Create(name string, x int, y int) (*Entity, error) {
 			case "InteractComponent":
 				interact := &component.InteractComponent{}
 				interact.Message = append(interact.Message, params...)
-				fmt.Println(interact)
+				log.Println(interact)
 				entity.AddComponent(interact)
 			case "WanderAIComponent":
 				entity.AddComponent(&component.WanderAIComponent{})

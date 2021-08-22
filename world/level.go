@@ -1,7 +1,7 @@
 package world
 
 import (
-	"fmt"
+	"log"
 	"math"
 	"math/rand"
 	"time"
@@ -123,7 +123,7 @@ func newLevel(width int, height int) (level *Level) {
 }
 
 func NewOverworldSection(width int, height int) (level *Level) {
-	fmt.Println("Creating new random level")
+	log.Println("Creating new random level")
 	level = newLevel(width, height)
 
 	p := perlin.NewPerlin(alpha, beta, n, time.Now().UnixNano())
