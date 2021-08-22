@@ -22,6 +22,7 @@ const Window_W = 992
 const Window_H = 576
 const World_W = 800
 const World_H = 576
+
 const MiniMap_X = World_W + 6
 const MiniMap_Y = 200
 const MiniMap_W = 180
@@ -260,7 +261,7 @@ func (s *Renderer) Update(level *world.Level) *world.Level {
 				sY = 0
 				sX = 144
 			}
-			s.drawSprite(int32(x), int32(y), sX, sY, 255, 255, 255, s.uiTexture)
+			s.drawSpriteEx(int32(x), int32(y), sX, sY, 32, 32, 255, 255, 255, 255, s.uiTexture)
 		}
 	}
 
@@ -457,7 +458,6 @@ func (s *Renderer) drawSprite(x int32, y int32, sx int32, sy int32, r uint8, g u
 	src := sdl.Rect{X: sx, Y: sy, W: Sprite_Size_W, H: Sprite_Size_H}
 	dst := sdl.Rect{X: x, Y: y, W: int32(Tile_Size_W), H: int32(Tile_Size_H)}
 	s.renderer.Copy(texture, &src, &dst)
-
 }
 
 func (s *Renderer) drawSpriteEx(x int32, y int32, sx int32, sy int32, w int32, h int32, r uint8, g uint8, b uint8, a uint8, texture *sdl.Texture) {
