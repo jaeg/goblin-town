@@ -33,7 +33,6 @@ func InputSystem() {
 		case *sdl.QuitEvent:
 			println("Quit")
 			os.Exit(0)
-			break
 		case *sdl.MouseMotionEvent:
 			Mouse.X = int(t.X)
 			Mouse.Y = int(t.Y)

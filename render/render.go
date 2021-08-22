@@ -165,7 +165,7 @@ func (s *Renderer) Update(level *world.Level) *world.Level {
 	}
 
 	if system.Keyboard.GetKey("1") == 1 {
-		if releasedZoom == true {
+		if releasedZoom {
 			Tile_Size_H = 32
 			Tile_Size_W = 32
 			CameraX = system.Mouse.X/Tile_Size_W + CameraX
@@ -183,7 +183,7 @@ func (s *Renderer) Update(level *world.Level) *world.Level {
 
 	}
 	if system.Keyboard.GetKey("2") == 1 {
-		if releasedZoom == true {
+		if releasedZoom {
 			Tile_Size_H = 16
 			Tile_Size_W = 16
 			CameraX = system.Mouse.X/Tile_Size_W + CameraX
@@ -200,7 +200,7 @@ func (s *Renderer) Update(level *world.Level) *world.Level {
 		}
 	}
 	if system.Keyboard.GetKey("3") == 1 {
-		if releasedZoom == true {
+		if releasedZoom {
 			Tile_Size_H = 8
 			Tile_Size_W = 8
 			CameraX = system.Mouse.X/Tile_Size_W + CameraX
@@ -218,7 +218,7 @@ func (s *Renderer) Update(level *world.Level) *world.Level {
 	}
 
 	if system.Keyboard.GetKey("4") == 1 {
-		if releasedZoom == true {
+		if releasedZoom {
 			Tile_Size_H = 4
 			Tile_Size_W = 4
 			CameraX = 0
@@ -484,7 +484,7 @@ func (s *Renderer) drawText(x int32, y int32, text string) {
 	var err error
 
 	var solidSurface *sdl.Surface
-	if solidSurface, err = s.font.RenderUTF8BlendedWrapped(text, sdl.Color{255, 255, 255, 255}, 192); err != nil {
+	if solidSurface, err = s.font.RenderUTF8BlendedWrapped(text, sdl.Color{R: 255, G: 255, B: 255, A: 255}, 192); err != nil {
 		fmt.Printf("Failed to render text: %s\n", err)
 		return
 	}
@@ -495,6 +495,9 @@ func (s *Renderer) drawText(x int32, y int32, text string) {
 	}
 	solidSurface.Free()
 	_, _, w, h, err := solidTexture.Query()
+	if err != nil {
+		fmt.Printf("Error querying texture")
+	}
 	dst := sdl.Rect{X: x, Y: y, W: w, H: h}
 	s.renderer.Copy(solidTexture, nil, &dst)
 	solidTexture.Destroy()

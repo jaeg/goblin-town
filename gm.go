@@ -207,7 +207,7 @@ func (gm *GameMaster) Update() {
 	}
 
 	// DRAGONS!!
-	if dragonPresent == false {
+	if dragonPresent {
 		if getRandom(0, 1000) == 0 {
 			fmt.Println("A dragon has flown in!")
 			x := rand.Intn(WIDTH)

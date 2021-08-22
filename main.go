@@ -12,8 +12,6 @@ import (
 	"github.com/jaeg/goblin-town/world"
 )
 
-var planets map[string]*world.Planet
-
 const STARTING_GOBLINS = 5
 const STARTING_GOBLIN_CLUSTERS = 10
 
@@ -58,7 +56,7 @@ func main() {
 	system.InputSystemInit()
 	ticker := time.NewTicker(time.Second / 32)
 	ticks := 0
-	for _ = range ticker.C {
+	for range ticker.C {
 		ticks++
 		if ticks >= 120 {
 			level.NextHour()

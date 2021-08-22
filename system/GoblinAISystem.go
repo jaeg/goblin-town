@@ -3,7 +3,6 @@ package system
 import (
 	"github.com/jaeg/goblin-town/component"
 	"github.com/jaeg/goblin-town/entity"
-	entityFactory "github.com/jaeg/goblin-town/entity"
 	"github.com/jaeg/goblin-town/world"
 
 	"github.com/beefsack/go-astar"
@@ -17,21 +16,21 @@ type GoblinAISystem struct {
 }
 
 // Update Main update function of the system.
-func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world.Level {
-	if entity.HasComponent("GoblinAIComponent") {
-		if entity.HasComponent("MyTurnComponent") {
-			aic := entity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
-			pc := entity.GetComponent("PositionComponent").(*component.PositionComponent)
+func (s GoblinAISystem) Update(level *world.Level, cEntity *entity.Entity) *world.Level {
+	if cEntity.HasComponent("GoblinAIComponent") {
+		if cEntity.HasComponent("MyTurnComponent") {
+			aic := cEntity.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
+			pc := cEntity.GetComponent("PositionComponent").(*component.PositionComponent)
 
 			deltaX := 0
 			deltaY := 0
-			if entity.HasComponent("HealthComponent") {
-				hc := entity.GetComponent("HealthComponent").(*component.HealthComponent)
+			if cEntity.HasComponent("HealthComponent") {
+				hc := cEntity.GetComponent("HealthComponent").(*component.HealthComponent)
 				if hc.Health <= 0 {
-					if entity.HasComponent("FoodComponent") {
-						entity.RemoveComponent("GoblinAIComponent")
+					if cEntity.HasComponent("FoodComponent") {
+						cEntity.RemoveComponent("GoblinAIComponent")
 					} else {
-						entity.AddComponent(&component.DeadComponent{})
+						cEntity.AddComponent(&component.DeadComponent{})
 					}
 					return level
 				}
@@ -87,7 +86,7 @@ func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world
 					}
 					//Make a new goblin
 					if emptyX != -1 && emptyY != -1 && goblinsNearby >= aic.MateThreshold && aic.Energy > aic.HungerThreshold {
-						goblin, err := entityFactory.Create("goblin", emptyX, emptyY)
+						goblin, err := entity.Create("goblin", emptyX, emptyY)
 						newAic := goblin.GetComponent("GoblinAIComponent").(*component.GoblinAIComponent)
 						energy := aic.Energy / 2
 						aic.Energy = energy
@@ -166,23 +165,23 @@ func (s GoblinAISystem) Update(level *world.Level, entity *entity.Entity) *world
 			}
 
 			//Move
-			if move(entity, level, deltaX, deltaY) {
+			if move(cEntity, level, deltaX, deltaY) {
 				entityHit := level.GetSolidEntityAt(pc.GetX()+deltaX, pc.GetY()+deltaY)
 				if entityHit != nil {
-					if entityHit != entity && entityHit.Blueprint != "goblin" {
-						hit(entity, entityHit)
-						if eat(entity, entityHit) {
+					if entityHit != cEntity && entityHit.Blueprint != "goblin" {
+						hit(cEntity, entityHit)
+						if eat(cEntity, entityHit) {
 							aic.Energy += 2
 						}
 					}
 				}
 			}
-			face(entity, deltaX, deltaY)
+			face(cEntity, deltaX, deltaY)
 
 			//Every thing we just did costed energy.
 			aic.Energy--
 			if aic.Energy <= 0 {
-				entity.AddComponent(&component.DeadComponent{})
+				cEntity.AddComponent(&component.DeadComponent{})
 			}
 		}
 	}

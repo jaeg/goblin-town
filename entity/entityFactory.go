@@ -90,9 +90,7 @@ func Create(name string, x int, y int) (*Entity, error) {
 				entity.AddComponent(inv)
 			case "InteractComponent":
 				interact := &component.InteractComponent{}
-				for _, item := range params {
-					interact.Message = append(interact.Message, item)
-				}
+				interact.Message = append(interact.Message, params...)
 				fmt.Println(interact)
 				entity.AddComponent(interact)
 			case "WanderAIComponent":
@@ -135,5 +133,5 @@ func Create(name string, x int, y int) (*Entity, error) {
 		}
 		return &entity, nil
 	}
-	return nil, errors.New("No blueprint found")
+	return nil, errors.New("no blueprint found")
 }

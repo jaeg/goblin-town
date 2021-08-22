@@ -22,7 +22,7 @@ func (s InitiativeSystem) Update(level *world.Level, entity *entity.Entity) *wor
 				ic.Ticks = ic.OverrideValue
 			}
 
-			if entity.HasComponent("MyTurnComponent") == false {
+			if !entity.HasComponent("MyTurnComponent") {
 
 				//Handle sleep schedules.
 				canGo := false
